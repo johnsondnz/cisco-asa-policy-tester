@@ -21,6 +21,7 @@ jinja2
 ## ToDo
 - Impliment a retest.yml file from a test to allow for easy rerun on failed items with the need to retest all passed items.
 - Test and inpliement enable password.
+- Fix report ICMP type and code fields.
 
 ## Usage
 `./tester.py -i <IP> -u <USERNAME> -p -y <yml_definition>`
