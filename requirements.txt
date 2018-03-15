@@ -1,0 +1,8 @@
+netmiko
+scp>=0.10.0
+pyyaml
+pyserial
+textfsm
+logzero
+getpass3
+jinja2

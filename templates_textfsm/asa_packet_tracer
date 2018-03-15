@@ -1,0 +1,21 @@
+Value INPUT_INTERFACE (\S+)
+Value INPUT_STATUS (\S+)
+Value INPUT_LINE_STATUS (\S+)
+Value OUTPUT_INTERFACE (\S+)
+Value OUTPUT_STATUS (\S+)
+Value OUTPUT_LINE_STATUS (\S+)
+Value ACTION (\S+)
+Value DROP_REASON (.*)
+
+Start
+  ^Result: -> Results
+
+Results
+  ^input-interface: ${INPUT_INTERFACE}
+  ^input-status: ${INPUT_STATUS}
+  ^input-line-status: ${INPUT_LINE_STATUS}
+  ^output-interface: ${OUTPUT_INTERFACE}
+  ^output-status: ${OUTPUT_STATUS}
+  ^output-line-status: ${OUTPUT_LINE_STATUS}
+  ^Action: ${ACTION}
+  ^Drop-reason: ${DROP_REASON} -> Record
