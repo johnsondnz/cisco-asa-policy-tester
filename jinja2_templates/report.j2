@@ -12,7 +12,7 @@
 
     <style>
         .footer {
-            position: absolute;
+            /*position: absolute;*/
             bottom: 0;
             width: 100%;
             height: 60px;
@@ -21,6 +21,23 @@
             /* Vertically center the text there */
             background-color: #f5f5f5;
         }
+        h3 {
+            font-size: 24px;
+            font-weight: bold;
+            color: #3d3d3d;
+        }
+        h4 {
+            font-size: 18px;
+            font-weight: bold;
+            font-style: italic;
+            color: #3d3d3d;
+        }
+        .row {
+            margin-bottom: 50px;
+        }
+        .table {
+            margin-bottom: 25px;
+        }
     </style>
 
     <title>ASA Policy Test Report</title>
@@ -28,33 +45,38 @@
 
 <body>
     <div class="container-fluid">
+        {% for interface, action in context.items() %} 
         <div class="row">
             <div class="col-sm-12">
-                <h3>Tests that should 'allow' traffic</h3>
+                <h3>Interface: {{interface}}</h3>
+                {% for action_type, data in action.items() %}
+                <h4>Test Type: {{action_type}}</h4>
                 <table class="table table-sm">
                     <thead>
                         <tr>
                             <th>#</th>
-                            <th>Source IP</th>
-                            <th>Source Port</th>
+                            <th>Proto</th>
+                            <th>Src IP</th>
+                            <th>Src Port</th>
                             <th>ICMP Type</th>
                             <th>ICMP Code</th>
-                            <th>Destination IP</th>
-                            <th>Destination Port</th>
+                            <th>Dest IP</th>
+                            <th>Dest Port</th>
                             <th>Drop Reason</th>
                             <th>Action</th>
                             <th>Expected</th>
                             <th>Grade</th>
                         </tr>
                     </thead>
+                    {% for row in data %} {% set row_color = 'table-success' if row.grade == '[PASS]' else 'table-danger' %}
                     <tbody>
-                        {% for row in context.should_allow %} {% set context = 'table-success' if row.grade == '[PASS]' else 'table-danger' %}
-                        <tr class="{{context}}">
+                        <tr class="{{row_color}}">
                             <td>{{loop.index}}</td>
+                            <td>{{row.protocol}}</td>
                             <td>{{row.source_ip}}</td>
                             <td>{{row.source_port}}</td>
                             <td>{{row.icmp_type}}</td>
-                            <td>{{row.icmp_type}}</td>
+                            <td>{{row.icmp_code}}</td>
                             <td>{{row.destination_ip}}</td>
                             <td>{{row.destination_port}}</td>
                             <td>{{row.drop_reason}}</td>
@@ -62,58 +84,24 @@
                             <td>{{row.expected_result}}</td>
                             <td>{{row.grade}}</td>
                         </tr>
-                        {% endfor %}
                     </tbody>
+                    {% endfor %}
                 </table>
+                {% endfor %}
             </div>
         </div>
-        <div class="row">
-            <div class="col-sm-12">
-                <h3>Tests that should 'drop' traffic</h3>
-                <table class="table table-sm">
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>Source IP</th>
-                            <th>Source Port</th>
-                            <th>ICMP Type</th>
-                            <th>ICMP Code</th>
-                            <th>Destination IP</th>
-                            <th>Destination Port</th>
-                            <th>Drop Reason</th>
-                            <th>Action</th>
-                            <th>Expected</th>
-                            <th>Grade</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for row in context.should_drop %} {% set context = 'table-success' if row.grade == '[PASS]' else 'table-danger' %}
-                        <tr class="{{context}}">
-                            <td>{{loop.index}}</td>
-                            <td>{{row.source_ip}}</td>
-                            <td>{{row.source_port}}</td>
-                            <td>{{row.icmp_type}}</td>
-                            <td>{{row.icmp_type}}</td>
-                            <td>{{row.destination_ip}}</td>
-                            <td>{{row.destination_port}}</td>
-                            <td>{{row.drop_reason}}</td>
-                            <td>{{row.action}}</td>
-                            <td>{{row.expected_result}}</td>
-                            <td>{{row.grade}}</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-            <footer class="footer">
-                <div class="container">
-                    <span class="text-muted">
-                        Created using <a href="https://github.com/johnsondnz/cisco-asa-policy-tester" target="_blank">cisco-asa-policy-tester</a> |
-                        Report generated {{ generated }}
-                    </span>
-                </div>
-            </footer>
+        {% endfor %}
+    </div>
+    </div>
+    <footer class="footer">
+        <div class="container">
+            <span class="text-muted">
+                Created using
+                <a href="https://github.com/johnsondnz/cisco-asa-policy-tester" target="_blank">cisco-asa-policy-tester</a> | Report generated {{ generated }}
+            </span>
         </div>
+    </footer>
+    </div>
     </div>
     </div>
     </div>
