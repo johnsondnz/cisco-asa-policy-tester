@@ -54,8 +54,8 @@ INSIDE_INTERFACE:
         }
         - {
             protocol: icmp, 
-            icmp_type: 0,
-            icmp_code: 3,
+            icmp_type: 8,
+            icmp_code: 0,
             source_ip: 192.168.1.1,
             source_port: , 
             destination_ip: 192.168.1.2, 
