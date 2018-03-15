@@ -124,4 +124,4 @@ Password:
 ```
 
 ## Report Output
-![alt text](https://i.imgur.com/Q67wqK6.png "Report Output")
+![alt text](https://i.imgur.com/3ywm2W6.png "Report Output")
