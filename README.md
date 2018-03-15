@@ -20,20 +20,20 @@ At this time the tool requires a privilege-level 15 user.  It is untested with l
 
 ## ToDo
 - Impliment a retest.yml file from a test to allow for easy rerun on failed items with the need to retest all passed items.
-- Test and inpliement enable password.
+- Test and impliement enable password.
 - Fix report ICMP type and code fields.
 
 ## Usage
 - `./tester.py -i <IP> -u <USERNAME> -p -y <yml_definition>`
 - `./tester.py -i 192.168.1.1 -u admin -p -y firewall_test.yml`
 
-The tool uses GetPass3 to securely obtain the users passwords.
+The tool uses getpass3 to securely obtain the users passwords.
 
 ## YAML Structure
 Store in `tests/` folder.
 ```
-INSIDE_INTERFACE:
-    allow:
+INSIDE_INTERFACE: # one dict per interface
+    allow: # rules you expect to be allowed through the firewall
         - {
             protocol: tcp, 
             icmp_type: ,
@@ -62,7 +62,7 @@ INSIDE_INTERFACE:
             destination_port: 
         }
 
-    drop:
+    drop: # rules you expect to be blocked by the fire
         - {
             protocol: tcp, 
             icmp_type: ,
