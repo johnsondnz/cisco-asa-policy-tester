@@ -99,7 +99,7 @@ def ExecuteTests(action, context):
                 interface, test_data['protocol'], test_data['source_ip'], test_data['icmp_type'], test_data['icmp_code'], test_data['destination_ip'])
 
         logger.info(
-            'Processing: Pass Test, "{}"'.format(command))
+            'Processing: {} Test, "{}"'.format(action, command))
 
         # Send the command to the ASA
         cli_output = connect.send_command(command)
@@ -130,7 +130,7 @@ def ExecuteTests(action, context):
             'destination_ip': test_data['destination_ip'],
             'destination_port': test_data['destination_port'] if test_data['destination_port'] else '', 
             'action': test_results['action'],
-            'expected_result': 'allow',
+            'expected_result': action,
             'drop_reason': test_results['drop_reason'] if test_results['drop_reason'] else '',
             'grade': grade
         })
