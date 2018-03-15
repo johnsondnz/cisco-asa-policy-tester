@@ -9,14 +9,14 @@ It is overwritten with each run.
 At this time the tool requires a privilege-level 15 user.  It is untested with lower levels or passing into enable mode.
 
 ## Requirements
-netmiko
-scp>=0.10.0
-pyyaml
-pyserial
-textfsm
-logzero
-getpass3
-jinja2
+- netmiko
+- scp>=0.10.0
+- pyyaml
+- pyserial
+- textfsm
+- logzero
+- getpass3
+- jinja2
 
 ## ToDo
 - Impliment a retest.yml file from a test to allow for easy rerun on failed items with the need to retest all passed items.
@@ -24,10 +24,8 @@ jinja2
 - Fix report ICMP type and code fields.
 
 ## Usage
-`./tester.py -i <IP> -u <USERNAME> -p -y <yml_definition>`
-
-example
-`./tester.py -i 192.168.1.1 -u admin -p -y firewall_test.yml`
+- `./tester.py -i <IP> -u <USERNAME> -p -y <yml_definition>`
+- `./tester.py -i 192.168.1.1 -u admin -p -y firewall_test.yml`
 
 The tool uses GetPass3 to securely obtain the users passwords.
 
