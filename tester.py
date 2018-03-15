@@ -74,7 +74,11 @@ def CheckArgs(args=None):
         enable_password
     )
 
+
 def ExecuteTests(action, context):
+    '''
+    Execute the cli packet tracer commands for each test and returns a list of dictionaries
+    '''
 
     testing_results = []
     if action == 'allow':
@@ -128,7 +132,7 @@ def ExecuteTests(action, context):
             'icmp_type': test_data['icmp_type'] if test_data['icmp_type'] else '',
             'icmp_code': test_data['icmp_code'] if test_data['icmp_code'] else '',
             'destination_ip': test_data['destination_ip'],
-            'destination_port': test_data['destination_port'] if test_data['destination_port'] else '', 
+            'destination_port': test_data['destination_port'] if test_data['destination_port'] else '',
             'action': test_results['action'],
             'expected_result': action,
             'drop_reason': test_results['drop_reason'] if test_results['drop_reason'] else '',
@@ -166,29 +170,30 @@ if __name__ == "__main__":
 
             logger.info('Connected to {}\n'.format(device['ip']))
 
+            results = {}
+            # setup each interface dict
+            for interface, test in test_map.items():
+                results[interface] = {}
+
             # Begin the tests that should pass
             for interface, test in test_map.items():
 
                 logger.info('Processing {} tests'.format(interface))
 
-                should_allow = ExecuteTests('allow', test)
-                should_drop = ExecuteTests('drop', test)
+                # run each interfaces test and assign to dictionary
+                results[interface]['should_allow'] = ExecuteTests('allow', test)
+                results[interface]['should_drop'] = ExecuteTests('drop', test)
 
-                results = {}
-                results['should_allow'] = should_allow
-                results['should_drop'] = should_drop
+            GenerateReport(results, script_dir, datetime.datetime.now().strftime(
+                "%d/%m/%Y @ %H:%M:%S"))
 
-                # print(results)
+            # check for FAIL items and generate the retest YAML
+            # save times with remediate rulesets
+            # uses a recusive search to look for grade: [FAIL] in result dict
+            # retest = RecursiveSearch(results, 'grade', '[FAIL]')
 
-                GenerateReport(results, script_dir, datetime.datetime.now().strftime("%d/%m/%Y @ %H:%M:%S"))
-
-                # check for FAIL items and generate the retest YAML
-                # save times with remediate rulesets
-                # uses a recusive search to look for grade: [FAIL] in result dict
-                # retest = RecursiveSearch(results, 'grade', '[FAIL]')
-                
-                # if retest == True:
-                #     ReTest(results, script_dir)
+            # if retest == True:
+            #     ReTest(results, script_dir)
 
     except:
         logger.error('{}: {}'.format(
