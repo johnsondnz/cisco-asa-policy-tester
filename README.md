@@ -35,7 +35,7 @@ Store in `tests/` folder.
 ---
 ---
 INSIDE: # One dictionary per interface
-  allow: # rules you expect to be allowed by the firewal
+  allow: # rules you expect to be allowed by the firewall
     - {
         protocol: tcp, 
         icmp_type: ,
@@ -73,7 +73,7 @@ INSIDE: # One dictionary per interface
         destination_port: 14452
     }
 
-  drop: # rules you expect to be blocked by the firewal
+  drop: # rules you expect to be blocked by the firewall
     - {
         protocol: udp, 
         icmp_type: ,
@@ -94,7 +94,7 @@ INSIDE: # One dictionary per interface
     }
 
 OUTSIDE: # One dictionary per interface
-  allow: # rules you expect to be allowed by the firewal
+  allow: # rules you expect to be allowed by the firewall
     - {
         protocol: udp, 
         icmp_type: ,
@@ -114,7 +114,7 @@ OUTSIDE: # One dictionary per interface
         destination_port: 53
     }
 
-  drop: # rules you expect to be blocked by the fire
+  drop: # rules you expect to be blocked by the firewall
     - {
         protocol: tcp, 
         icmp_type: ,
