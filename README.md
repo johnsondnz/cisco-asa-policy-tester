@@ -3,8 +3,7 @@
 ## Description
 This python3 tool will log into a Cisco ASA and perform a series of packet-tracer commands to test a security policy.
 
-The tool will create a report in `reports/html_report.html`.
-It is overwritten with each run.
+The tool will create a report in `reports/html_report.html` which is overwritten with each run.
 
 At this time the tool requires a privilege-level 15 user.  It is untested with lower levels or passing into enable mode.
 
@@ -19,8 +18,8 @@ At this time the tool requires a privilege-level 15 user.  It is untested with l
 - jinja2
 
 ## ToDo
-- Impliment a retest.yml file from a test to allow for easy rerun on failed items with the need to retest all passed items.
-- Test and impliment enable password.
+- Implement a retest.yml file from a test to allow for easy rerun on failed items without the need to retest all items.
+- Test and implement enable password.
 - Fix report ICMP type and code fields.
 
 ## Usage
@@ -32,7 +31,6 @@ The tool uses getpass3 to securely obtain the users passwords.
 ## YAML Structure
 Store in `tests/` folder.
 ```
----
 ---
 INSIDE: # One dictionary per interface
   allow: # rules you expect to be allowed by the firewall
