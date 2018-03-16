@@ -146,30 +146,30 @@ Password:
 [I 180315 18:11:54 tester:172] Processing INSIDE tests
 [I 180315 18:11:54 tester:81] Starting tests that should [PASS] block
 [I 180315 18:11:54 tester:88] Processing tcp protocol policy
-[I 180315 18:11:54 tester:102] Processing: allow Test, "packet-tracer input INSIDE tcp 192.168.1.1 12345 192.168.1.2 80 detail"
+[I 180315 18:11:54 tester:102] Processing: allow test, "packet-tracer input INSIDE tcp 192.168.1.1 12345 192.168.1.2 80 detail"
 [I 180315 18:11:55 tester:110] ASA reports: allow
 [I 180315 18:11:55 tester:116] Test passed!
 
 [I 180315 18:11:55 tester:88] Processing udp protocol policy
-[I 180315 18:11:55 tester:102] Processing: allow Test, "packet-tracer input INSIDE udp 192.168.1.1 12345 192.168.1.2 8080 detail"
+[I 180315 18:11:55 tester:102] Processing: allow test, "packet-tracer input INSIDE udp 192.168.1.1 12345 192.168.1.2 8080 detail"
 [I 180315 18:11:55 tester:110] ASA reports: drop
 [I 180315 18:11:55 tester:113] Drop reason: (acl-drop) Flow is denied by configured rule
 [E 180315 18:11:55 tester:119] Test failed!
 
 [I 180315 18:11:55 tester:88] Processing icmp protocol policy
-[I 180315 18:11:55 tester:102] Processing: allow Test, "packet-tracer input INSIDE icmp 192.168.1.1 8 0 192.168.1.2 detail"
+[I 180315 18:11:55 tester:102] Processing: allow test, "packet-tracer input INSIDE icmp 192.168.1.1 8 0 192.168.1.2 detail"
 [I 180315 18:11:56 tester:110] ASA reports: allow
 [I 180315 18:11:56 tester:116] Test passed!
 
 [I 180315 18:11:56 tester:83] Starting tests that should [FAIL] block
 [I 180315 18:11:56 tester:88] Processing tcp protocol policy
-[I 180315 18:11:56 tester:102] Processing: drop Test, "packet-tracer input INSIDE tcp 192.168.1.1 12345 192.168.1.2 12345 detail"
+[I 180315 18:11:56 tester:102] Processing: drop test, "packet-tracer input INSIDE tcp 192.168.1.1 12345 192.168.1.2 12345 detail"
 [I 180315 18:11:56 tester:110] ASA reports: drop
 [I 180315 18:11:56 tester:113] Drop reason: (acl-drop) Flow is denied by configured rule
 [I 180315 18:11:56 tester:116] Test passed!
 
 [I 180315 18:11:56 tester:88] Processing tcp protocol policy
-[I 180315 18:11:56 tester:102] Processing: drop Test, "packet-tracer input INSIDE tcp 192.168.1.1 12345 192.168.1.2 443 detail"
+[I 180315 18:11:56 tester:102] Processing: drop test, "packet-tracer input INSIDE tcp 192.168.1.1 12345 192.168.1.2 443 detail"
 [I 180315 18:11:57 tester:110] ASA reports: allow
 [E 180315 18:11:57 tester:119] Test failed!
 
