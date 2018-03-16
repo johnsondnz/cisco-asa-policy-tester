@@ -20,7 +20,7 @@ At this time the tool requires a privilege-level 15 user.  It is untested with l
 
 ## ToDo
 - Impliment a retest.yml file from a test to allow for easy rerun on failed items with the need to retest all passed items.
-- Test and impliement enable password.
+- Test and impliment enable password.
 - Fix report ICMP type and code fields.
 
 ## Usage
