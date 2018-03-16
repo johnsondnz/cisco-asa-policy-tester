@@ -103,7 +103,7 @@ def ExecuteTests(action, context):
                 interface, test_data['protocol'], test_data['source_ip'], test_data['icmp_type'], test_data['icmp_code'], test_data['destination_ip'])
 
         logger.info(
-            'Processing: {} Test, "{}"'.format(action, command))
+            'Processing: {} test, "{}"'.format(action, command))
 
         # Send the command to the ASA
         cli_output = connect.send_command(command)
