@@ -17,10 +17,13 @@ At this time the tool requires a privilege-level 15 user.  It is untested with l
 - getpass3
 - jinja2
 
+## New to Version 0.2
+- Added NAT detected and report output.
+- Fixed issue with ICMP type and code not appearing in report.
+
 ## ToDo
 - Implement a retest.yml file from a test to allow for easy rerun on failed items without the need to retest all items.
 - Test and implement enable password.
-- Fix report ICMP type and code fields.
 
 ## Usage
 - `python3 tester.py -i <IP> -u <USERNAME> -p -y <yml_definition>`
