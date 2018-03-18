@@ -30,31 +30,43 @@ class ASAPolicyTest(object):
         for line in self.parsed_data.Parser()['results']:
 
             # setup the columns
-            input_interface = line[0] \
+            nat_from = line[0] \
                 if line[0] != '' else None
 
-            input_interface_status = line[1] \
+            nat_to = line[1] \
                 if line[1] != '' else None
 
-            input_interface_line_status = line[2] \
+            nat_rule = line[2] \
                 if line[2] != '' else None
 
-            output_interface = line[3] \
+            input_interface = line[3] \
                 if line[3] != '' else None
 
-            output_interface_status = line[4] \
+            input_interface_status = line[4] \
                 if line[4] != '' else None
 
-            output_interface_line_status = line[5] \
+            input_interface_line_status = line[5] \
                 if line[5] != '' else None
 
-            action = line[6] \
+            output_interface = line[6] \
                 if line[6] != '' else None
 
-            drop_reason = line[7] \
+            output_interface_status = line[7] \
                 if line[7] != '' else None
 
+            output_interface_line_status = line[8] \
+                if line[8] != '' else None
+
+            action = line[9] \
+                if line[9] != '' else None
+
+            drop_reason = line[10] \
+                if line[10] != '' else None
+
             mydict = {
+                'nat_from': nat_from,
+                'nat_to': nat_to,
+                'nat_rule': nat_rule,
                 'input_interface': input_interface,
                 'input_interface_status': input_interface_status,
                 'input_interface_line_status': input_interface_line_status,
@@ -64,5 +76,7 @@ class ASAPolicyTest(object):
                 'action': action,
                 'drop_reason': drop_reason
             }
+
+            # print(mydict)
             
             return mydict

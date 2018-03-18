@@ -110,12 +110,21 @@ def ExecuteTests(action, context):
         ParseData = ASAPolicyTest(script_dir, cli_output)
         test_results = ParseData.TestResult()
 
+        # log to terminal the overall ASA action
         logger.info('ASA reports: {}'.format(
             test_results['action']))
+
+        # if NAT is reported log to terminal
+        if test_results['nat_rule'] is not None:
+            logger.debug('NAT detected: {} to {}'.format(test_results['nat_from'], test_results['nat_to']))
+            logger.debug('NAT rule: "{}"'.format(test_results['nat_rule']))
+
+        # log to terminal the drop reason if it exists
         if test_results['drop_reason'] is not None:
             logger.info('Drop reason: {}'.format(
                 test_results['drop_reason']))
 
+        # log to terminal the test result
         if test_results['action'] == action:
             logger.info('Test passed!\n')
             grade = '[PASS]'
@@ -128,14 +137,17 @@ def ExecuteTests(action, context):
             'interface': interface,
             'protocol': test_data['protocol'],
             'source_ip': test_data['source_ip'],
-            'source_port': test_data['source_port'] if test_data['source_port'] else '',
-            'icmp_type': test_data['icmp_type'] if test_data['icmp_type'] else '',
-            'icmp_code': test_data['icmp_code'] if test_data['icmp_code'] else '',
+            'source_port': test_data['source_port'] if test_data['source_port'] is not None else '',
+            'icmp_type': test_data['icmp_type'] if test_data['icmp_type'] is not None else '',
+            'icmp_code': test_data['icmp_code'] if test_data['icmp_code'] is not None else '',
             'destination_ip': test_data['destination_ip'],
-            'destination_port': test_data['destination_port'] if test_data['destination_port'] else '',
+            'destination_port': test_data['destination_port'] if test_data['destination_port'] is not None else '',
             'action': test_results['action'],
             'expected_result': action,
-            'drop_reason': test_results['drop_reason'] if test_results['drop_reason'] else '',
+            'drop_reason': test_results['drop_reason'] if test_results['drop_reason'] is not None else '',
+            'nat_from': test_results['nat_from'] if test_results['nat_from'] is not None else '',
+            'nat_to': test_results['nat_to'] if test_results['nat_to'] is not None else '',
+            'nat_rule': test_results['nat_rule'] if test_results['nat_rule'] is not None else '',
             'grade': grade
         })
 

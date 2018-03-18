@@ -1,3 +1,6 @@
+Value NAT_FROM (\d+\.\d+\.\d+\.\d+/\d+)
+Value NAT_TO (\d+\.\d+\.\d+\.\d+/\d+)
+Value NAT_RULE (^nat\s.*)
 Value INPUT_INTERFACE (\S+)
 Value INPUT_STATUS (\S+)
 Value INPUT_LINE_STATUS (\S+)
@@ -8,9 +11,11 @@ Value ACTION (\S+)
 Value DROP_REASON (.*)
 
 Start
-  ^Result: -> Results
+  ^Phase: 1 -> Results
 
 Results
+  ^${NAT_RULE}
+  ^.+translate ${NAT_FROM} to ${NAT_TO}
   ^input-interface: ${INPUT_INTERFACE}
   ^input-status: ${INPUT_STATUS}
   ^input-line-status: ${INPUT_LINE_STATUS}
