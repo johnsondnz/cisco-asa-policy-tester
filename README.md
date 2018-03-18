@@ -18,7 +18,7 @@ At this time the tool requires a privilege-level 15 user.  It is untested with l
 - jinja2
 
 ## New to Version 0.2
-- Added NAT detected and report output.
+- Added NAT detection and report output.
 - Fixed issue with ICMP type and code not appearing in report.
 
 ## ToDo
