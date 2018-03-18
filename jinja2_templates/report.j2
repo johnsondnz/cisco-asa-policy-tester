@@ -51,7 +51,7 @@
                 <h3>Interface: {{interface}}</h3>
                 {% for action_type, data in action.items() %}
                 <h4>Test Type: {{action_type}}</h4>
-                <table class="table table-sm">
+                <table class="table table-sm table-bordered">
                     <thead>
                         <tr>
                             <th>#</th>
@@ -84,6 +84,18 @@
                             <td>{{row.expected_result}}</td>
                             <td>{{row.grade}}</td>
                         </tr>
+                        {% if row.nat_rule %}
+                        <tr class="{{row_color}}">
+                            <td></td>
+                            <td></td>
+                            <td colspan="10">
+                                <span style="color:#3d3d3d; font-size: 12px; font-weight: bold;">
+                                    NAT Detected: from {{row.nat_from}} to {{row.nat_to}}<br />
+                                    Nat Rule: {{row.nat_rule}}
+                                </span>
+                            </td>
+                        </tr>
+                        {% endif %}
                     </tbody>
                     {% endfor %}
                 </table>
