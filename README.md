@@ -179,3 +179,6 @@ Password:
 
 ## Report Output
 ![alt text](https://i.imgur.com/83lz6Ov.png "Report Output")
+
+### NAT Detection
+![alt text](https://i.imgur.com/eCcSEcZ.png "NAT Detection")
