@@ -181,4 +181,4 @@ Password:
 ![alt text](https://i.imgur.com/83lz6Ov.png "Report Output")
 
 ### NAT Detection
-![alt text](https://i.imgur.com/eCcSEcZ.png "NAT Detection")
+![alt text](https://i.imgur.com/Nqhr8EH.png "NAT Detection")
