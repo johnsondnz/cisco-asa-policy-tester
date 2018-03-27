@@ -15,21 +15,16 @@ python_version  : 3.5.2
 
 import sys
 import os
-import argparse
 import yaml
 import re
 import datetime
-from argparse import ArgumentParser
-from getpass import getpass
 from netmiko import ConnectHandler
 
 
 from logzero import logger
 
-from classes.structuredata import ASAPolicyTest
 from classes.report import GenerateReport
-from classes.search import RecursiveSearch
-from classes.resolve import Resolve, Lookup
+from classes.resolve import Resolve
 from classes.testcontrol import TestControl
 from classes.checkargs import CheckArgs
 
