@@ -6,3 +6,4 @@ textfsm
 logzero
 getpass3
 jinja2
+ipaddr
