@@ -68,7 +68,14 @@
                             <th>Grade</th>
                         </tr>
                     </thead>
-                    {% for row in data %} {% set row_color = 'table-success' if row.grade == '[PASS]' else 'table-danger' %}
+                    {% for row in data %}
+                    {% if  row.grade == '[PASS]' %}
+                        {% set row_color = 'table-success' %}
+                    {% elif row.grade == '[FAIL]' %}
+                        {% set row_color = 'table-warning' %}
+                    {% elif row.grade == '[SKIP]' %}
+                        {% set row_color = 'table-danger' %}
+                    {% endif %}
                     <tbody>
                         <tr class="{{row_color}}">
                             <td>{{loop.index}}</td>
@@ -86,12 +93,19 @@
                         </tr>
                         {% if row.nat_rule %}
                         <tr class="{{row_color}}">
-                            <td></td>
-                            <td></td>
-                            <td colspan="10">
+                            <td colspan="12">
                                 <span style="color:#3d3d3d; font-size: 12px; font-weight: bold;">
                                     NAT Detected: from {{row.nat_from}} to {{row.nat_to}}<br />
                                     Nat Rule: {{row.nat_rule}}
+                                </span>
+                            </td>
+                        </tr>
+                        {% endif %}
+                        {% if row.grade == '[SKIP]' %}}
+                        <tr class="{{row_color}}">
+                            <td colspan="12">
+                                <span style="color:#3d3d3d; font-size: 12px; font-weight: bold;">
+                                    Unable to resolve named host to IP Address
                                 </span>
                             </td>
                         </tr>
