@@ -147,7 +147,8 @@ OUTSIDE: # One dictionary per interface
 Currently cause I'm lazy and didn't recode a preprepared file.
 I'll get around to remove the first item 'name' at some point and flip the IP and hostname to be more like a true hostfile
 ```
-name IP hostname
+name 192.168.1.1 device1
+name 192.168.1.2 device2
 ```
 
 ## Running the tool
