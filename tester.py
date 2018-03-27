@@ -59,23 +59,23 @@ if __name__ == "__main__":
         pass
 
     
-    try:
-        # store the yaml tests
-        with open('{}/tests/{}'.format(script_dir, YAML_FILE), 'r') as yml:
-            yaml_data = yaml.safe_load(yml)
+    # try:
+    # store the yaml tests
+    with open('{}/tests/{}'.format(script_dir, YAML_FILE), 'r') as yml:
+        yaml_data = yaml.safe_load(yml)
 
-        test_control = TestControl(script_dir, yaml_data, hostfile_status, hostfile_list)  # call TestControl
-        testset = test_control.construct_testset()   # Build testset
+    test_control = TestControl(script_dir, yaml_data, hostfile_status, hostfile_list)  # call TestControl
+    testset = test_control.construct_testset()   # Build testset
 
-        logger.info('Attempting connection to {}'.format(device['ip']))
+    logger.info('Attempting connection to {}'.format(device['ip']))
 
-    
-        connect = ConnectHandler(**device)
-        if connect:
-            results = test_control.execute(testset, connect)
 
-        GenerateReport(results, script_dir, datetime.datetime.now().strftime(
-            "%d/%m/%Y @ %H:%M:%S"))
+    connect = ConnectHandler(**device)
+    if connect:
+        results = test_control.execute(testset, connect)
 
-    except Exception:
-        logger.error('{}: {}'.format(sys.exc_info()[0], sys.exc_info()[1:]))
+    GenerateReport(results, script_dir, datetime.datetime.now().strftime(
+        "%d/%m/%Y @ %H:%M:%S"))
+
+    # except Exception:
+    #     logger.error('{}: {}'.format(sys.exc_info()[0], sys.exc_info()[1:]))

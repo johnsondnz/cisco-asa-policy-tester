@@ -17,6 +17,9 @@ At this time the tool requires a privilege-level 15 user.  It is untested with l
 - getpass3
 - jinja2
 
+## New to Version 0.5
+- Added support for mutli-destination IP per test, see YAML examples below.
+
 ## New to Version 0.4
 - Major Code cleanup for easier management.
 
@@ -42,27 +45,36 @@ The tool uses getpass3 to securely obtain the users passwords.
 
 ## YAML Structure
 Store in `tests/` folder.
+
+### Mutli Destination IP
 ```
 ---
 INSIDE: # One dictionary per interface
   allow: # rules you expect to be allowed by the firewall
     - {
         protocol: tcp, 
-        icmp_type: ,
-        icmp_code: ,
-        source_ip: 192.168.1.1,
-        source_port: 12345, 
-        destination_ip: 192.168.1.2, 
-        destination_port: 1443
+        icmp_type: , icmp_code: ,
+        source_ip: 192.168.1.1, source_port: 12345, 
+        destination_ip: [host1, host2, host3], destination_port: 1443
+    }
+```
+
+### Allow and Drop
+```
+---
+INSIDE: # One dictionary per interface
+  allow: # rules you expect to be allowed by the firewall
+    - {
+        protocol: tcp, 
+        icmp_type: , icmp_code: ,
+        source_ip: 192.168.1.1, source_port: 12345, 
+        destination_ip: 192.168.1.2, destination_port: 1443
     }
     - {
         protocol: tcp, 
-        icmp_type: ,
-        icmp_code: ,
-        source_ip: 192.168.1.1,
-        source_port: 12345, 
-        destination_ip: 192.168.1.2, 
-        destination_port: 137
+        icmp_type: , icmp_code: ,
+        source_ip: 192.168.1.1, source_port: 12345, 
+        destination_ip: 192.168.1.2, destination_port: 137
     }
     - {
         protocol: icmp, 
