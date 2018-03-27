@@ -17,6 +17,9 @@ At this time the tool requires a privilege-level 15 user.  It is untested with l
 - getpass3
 - jinja2
 
+## New to Version 0.4
+- Major Code cleanup for easier management.
+
 ## New to Version 0.3
 - Added ability to use named hosts for source and destination IP.
 - Support for hostfile (custom) and DNS resolution.
