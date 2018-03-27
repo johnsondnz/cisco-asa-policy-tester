@@ -201,7 +201,7 @@ Password:
 
 [E 180327 18:15:14 resolve:94] Source IP "host2" is not a valid IP, further resolution required
 [I 180327 18:15:14 resolve:116] Looking up "host2" in hostfile
-[I 180327 18:15:14 resolve:35] Found: name 192.168.1.2 host2 description PowerOn security server for sub WAN, on line 143
+[I 180327 18:15:14 resolve:35] Found: name 192.168.1.2 host2, on line 143
 [I 180327 18:15:14 resolve:41] Object: host2, IP: 192.168.1.2
 [I 180327 18:15:14 resolve:89] Source IP "192.168.1.2" is a valid IP, further resolution not required
 
