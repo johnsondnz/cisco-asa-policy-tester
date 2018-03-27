@@ -309,7 +309,11 @@ Password:
 ```
 
 ## Report Output
-![alt text](https://i.imgur.com/83lz6Ov.png "Report Output")
+### Fail and Pass Tests
+![alt text](https://i.imgur.com/WAByh3g.png "Report Output")
 
 ### NAT Detection
 ![alt text](https://i.imgur.com/Nqhr8EH.png "NAT Detection")
+
+### Skipped Tests
+![alt text](https://i.imgur.com/7SryMhT.png "Skipped Test")
