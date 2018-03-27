@@ -16,6 +16,7 @@ At this time the tool requires a privilege-level 15 user.  It is untested with l
 - logzero
 - getpass3
 - jinja2
+- ipaddr
 
 ## New to Version 0.5
 - Added support for mutli-destination IP per test, see YAML examples below.
