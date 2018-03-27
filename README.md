@@ -17,6 +17,11 @@ At this time the tool requires a privilege-level 15 user.  It is untested with l
 - getpass3
 - jinja2
 
+## New to Version 0.3
+- Added ability to use named hosts for source and destination IP.
+- Support for hostfile (custom) and DNS resolution.
+- Error reporting for skipped items where names could not resolve to IP.
+
 ## New to Version 0.2
 - Added NAT detection and report output.
 - Fixed issue with ICMP type and code not appearing in report.
@@ -24,10 +29,11 @@ At this time the tool requires a privilege-level 15 user.  It is untested with l
 ## ToDo
 - Implement a retest.yml file from a test to allow for easy rerun on failed items without the need to retest all items.
 - Test and implement enable password.
+- Implement expected NAT resolution.
 
 ## Usage
-- `python3 tester.py -i <IP> -u <USERNAME> -p -y <yml_definition>`
-- `python3 tester.py -i 192.168.1.1 -u admin -p -y firewall_test.yml`
+- `python3 tester.py -i <IP> -u <USERNAME> -p -y <yml_definition> -hf <path/to/hostfile>`
+- `python3 tester.py -i 192.168.1.1 -u admin -p -y firewall_test.yml -hf /tmp/hosts`
 
 The tool uses getpass3 to securely obtain the users passwords.
 
@@ -135,6 +141,13 @@ OUTSIDE: # One dictionary per interface
         destination_port: 8080
     }
     
+```
+
+## Hostfile format
+Currently cause I'm lazy and didn't recode a preprepared file.
+I'll get around to remove the first item 'name' at some point and flip the IP and hostname to be more like a true hostfile
+```
+name IP hostname
 ```
 
 ## Running the tool
