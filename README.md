@@ -288,7 +288,6 @@ Password:
 
 ### Example of hostfile resolution with DNS fallback
 ```
-```
  clear; ./tester.py -i 192.168.1.1 -u admin -y test.yml -p -hf /tmp/names
 Password:
 [I 180327 18:15:14 tester:54] Hostfile "/tmp/names" found and loaded
