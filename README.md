@@ -311,6 +311,9 @@ Password:
 ## Report Output
 ### Fail and Pass Tests
 ![alt text](https://i.imgur.com/WAByh3g.png "Report Output")
+
+## Failed with NAT and RPF-Violation
+**All failure types are captured**
 ![alt text](https://i.imgur.com/kq2oIWD.png "Failed with NAT")
 
 ### NAT Detection
