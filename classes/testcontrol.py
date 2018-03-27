@@ -87,7 +87,6 @@ class TestControl(object):
                 'destination': destination_ip.get_ip()
             }
         
-        print(ip_information)
         return ip_information
 
     def _construct_command(self, interface, ip_information, test_data):
@@ -114,14 +113,12 @@ class TestControl(object):
                         cmd = 'packet-tracer input {} {} {} {} {} {} detail'.format(
                             interface, test_data['protocol'], ip_information['source']['ip_address'], test_data['source_port'], dest_ip['ip_address'], test_data['destination_port'])
                         command.append(cmd)
-                        logger.info('storing {}'.format(cmd))
 
                     elif 'icmp' in str(test_data['protocol'].lower()):
 
                         cmd = 'packet-tracer input {} {} {} {} {} {} detail'.format(
                             interface, test_data['protocol'], ip_information['source']['ip_address'], test_data['icmp_type'], test_data['icmp_code'], dest_ip['ip_address'])
                         command.append(cmd)
-                        logger.info('storing {}'.format(cmd))
 
         else:
 
@@ -244,8 +241,8 @@ class TestControl(object):
                                         'command': cmd,
                                         'action': action
                                     })
-                                    logger.info('Test record "{}" for interface "{}" stored for execution\n'.format(
-                                        index, interface))
+                                    # logger.debug('Test record "{}" for interface "{}" stored for execution'.format(
+                                    #     index, interface))
 
                                 else:
                                     self.testset.append({
@@ -264,8 +261,8 @@ class TestControl(object):
                                         'action': action
                                     })
 
-                                    logger.error('Test record "{}" for interface "{}" marked to be skipped due to invalid addresses detection\n'.format(
-                                        index, interface))
+                                    # logger.debug('Test record "{}" for interface "{}" marked to be skipped due to invalid addresses detection'.format(
+                                    #     index, interface))
 
                         if command['list'] == False:
 
@@ -286,8 +283,8 @@ class TestControl(object):
                                     'command': command['command'],
                                     'action': action
                                 })
-                                logger.info('Test record "{}" for interface "{}" stored for execution\n'.format(
-                                    index, interface))
+                                # logger.debug('Test record "{}" for interface "{}" stored for execution\n'.format(
+                                #     index, interface))
 
                             else:
                                 self.testset.append({
@@ -306,8 +303,8 @@ class TestControl(object):
                                     'action': action
                                 })
 
-                                logger.error('Test record "{}" for interface "{}" marked to be skipped due to invalid addresses detection\n'.format(
-                                    index, interface))
+                                # logger.debug('Test record "{}" for interface "{}" marked to be skipped due to invalid addresses detection\n'.format(
+                                #     index, interface))
 
         return self.testset
 
@@ -323,8 +320,7 @@ class TestControl(object):
             # items flagged as False could not have IP Addresses resolved
             if test_data['execute'] == True:
 
-                logger.info('Excuting: {} test record, "{}"'.format(
-                    test_data['action'], test_data['test_record']))
+                logger.info('Excuting interface {} test record, "{}"'.format(test_data['interface'], test_data['test_record']))
                 logger.info('Command: {}'.format(test_data['command']))
 
                 cli_output = connect.send_command(test_data['command'])
