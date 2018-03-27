@@ -179,8 +179,9 @@ name 192.168.1.2 device2
 ```
 
 ## Running the tool
+### Full Run-through
 ```
- clear; ./tester.py -i 192.168.1.1 -u admin -y orion.yml -p -hf /tmp/names
+ clear; ./tester.py -i 192.168.1.1 -u admin -y test.yml -p -hf /tmp/names
 Password:
 [I 180327 18:15:14 tester:54] Hostfile "/tmp/names" found and loaded
 [I 180327 18:15:14 tester:67] ! ---------- CONSTRUCTING TESTS ---------- !
@@ -261,6 +262,51 @@ Password:
 [I 180327 18:15:22 testcontrol:350] Test passed!
 
 [D 180327 18:15:22 report:19] HTML report output to "/Coding/GitHub/cisco-asa-policy-tester/reports/html_report.html"
+```
+
+### Example of Failed IP resolution
+```
+$ clear; ./tester.py -i 192.168.1.1 -u admin -y test.yml -p -hf /tmp/names
+Password:
+[I 180327 18:26:52 tester:54] Hostfile "/tmp/names" found and loaded
+[I 180327 18:26:52 tester:66] ! ---------- CONSTRUCTING TESTS ---------- !
+
+[D 180327 18:26:52 testcontrol:22] Context data loaded
+[D 180327 18:26:52 testcontrol:40] Dictionary for "INSIDE" created.
+[I 180327 18:26:52 testcontrol:180] Constructing "INSIDE", "allow" tests
+[I 180327 18:26:52 testcontrol:186] Processing tcp protocol policy
+[D 180327 18:26:52 testcontrol:61] List detect in destination_ip
+[I 180327 18:26:52 resolve:89] Source IP "10.1.1.1" is a valid IP, further resolution not required
+
+[E 180327 18:26:52 resolve:94] Source IP "host1" is not a valid IP, further resolution required
+[I 180327 18:26:52 resolve:116] Looking up "host1" in hostfile
+[E 180327 18:26:52 resolve:44] Object: host1, IP: not found
+[I 180327 18:26:52 resolve:124] Attemping to resolve "host1" via DNS
+[I 180327 18:26:53 resolve:66] DNS resolution failed for object "host1"
+[E 180327 18:26:53 resolve:97] Unable to resolve "host1" to an IP Address
+```
+
+### Example of hostfile resolution with DNS fallback
+```
+```
+ clear; ./tester.py -i 192.168.1.1 -u admin -y test.yml -p -hf /tmp/names
+Password:
+[I 180327 18:15:14 tester:54] Hostfile "/tmp/names" found and loaded
+[I 180327 18:15:14 tester:67] ! ---------- CONSTRUCTING TESTS ---------- !
+
+[D 180327 18:15:14 testcontrol:22] Context data loaded
+[D 180327 18:15:14 testcontrol:40] Dictionary for "INSIDE" created.
+[I 180327 18:15:14 testcontrol:180] Constructing "INSIDE", "allow" tests
+[I 180327 18:15:14 testcontrol:186] Processing tcp protocol policy
+[D 180327 18:15:14 testcontrol:61] List detect in destination_ip
+[I 180327 18:15:14 resolve:89] Source IP "10.1.1.1" is a valid IP, further resolution not required
+
+[E 180327 18:15:14 resolve:94] Source IP "host1" is not a valid IP, further resolution required
+[I 180327 18:15:14 resolve:116] Looking up "host1" in hostfile
+[E 180327 18:15:14 resolve:44] Object: host1, IP: not found
+[I 180327 18:15:14 resolve:124] Attemping to resolve "host1" via DNS
+[I 180327 18:15:14 resolve:62] DNS resovled object "host1" to "192.168.1.1"
+[I 180327 18:15:14 resolve:89] Source IP "192.168.1.1" is a valid IP, further resolution not required
 ```
 
 ## Report Output
