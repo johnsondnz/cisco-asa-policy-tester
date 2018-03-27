@@ -64,6 +64,12 @@ INSIDE: # One dictionary per interface
 ---
 INSIDE: # One dictionary per interface
   allow: # rules you expect to be allowed by the firewall
+   - {
+        protocol: tcp, 
+        icmp_type: , icmp_code: ,
+        source_ip: 192.168.1.1, source_port: 12345, 
+        destination_ip: [host1, host2, host3], destination_port: 1443
+    }
     - {
         protocol: tcp, 
         icmp_type: , icmp_code: ,
@@ -137,6 +143,12 @@ OUTSIDE: # One dictionary per interface
     }
 
   drop: # rules you expect to be blocked by the firewall
+   - {
+        protocol: tcp, 
+        icmp_type: , icmp_code: ,
+        source_ip: 192.168.1.1, source_port: 12345, 
+        destination_ip: [host1, host2, host3], destination_port: 1443
+    }
     - {
         protocol: tcp, 
         icmp_type: ,
