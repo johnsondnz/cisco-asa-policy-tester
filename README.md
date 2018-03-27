@@ -17,6 +17,9 @@ At this time the tool requires a privilege-level 15 user.  It is untested with l
 - getpass3
 - jinja2
 
+## New to Version 0.5
+- Added support for mutli-destination IP per test, see YAML examples below.
+
 ## New to Version 0.4
 - Major Code cleanup for easier management.
 
@@ -42,27 +45,42 @@ The tool uses getpass3 to securely obtain the users passwords.
 
 ## YAML Structure
 Store in `tests/` folder.
+
+### Mutli Destination IP
 ```
 ---
 INSIDE: # One dictionary per interface
   allow: # rules you expect to be allowed by the firewall
     - {
         protocol: tcp, 
-        icmp_type: ,
-        icmp_code: ,
-        source_ip: 192.168.1.1,
-        source_port: 12345, 
-        destination_ip: 192.168.1.2, 
-        destination_port: 1443
+        icmp_type: , icmp_code: ,
+        source_ip: 192.168.1.1, source_port: 12345, 
+        destination_ip: [host1, host2, host3], destination_port: 1443
+    }
+```
+
+### Allow and Drop
+```
+---
+INSIDE: # One dictionary per interface
+  allow: # rules you expect to be allowed by the firewall
+   - {
+        protocol: tcp, 
+        icmp_type: , icmp_code: ,
+        source_ip: 192.168.1.1, source_port: 12345, 
+        destination_ip: [host1, host2, host3], destination_port: 1443
     }
     - {
         protocol: tcp, 
-        icmp_type: ,
-        icmp_code: ,
-        source_ip: 192.168.1.1,
-        source_port: 12345, 
-        destination_ip: 192.168.1.2, 
-        destination_port: 137
+        icmp_type: , icmp_code: ,
+        source_ip: 192.168.1.1, source_port: 12345, 
+        destination_ip: 192.168.1.2, destination_port: 1443
+    }
+    - {
+        protocol: tcp, 
+        icmp_type: , icmp_code: ,
+        source_ip: 192.168.1.1, source_port: 12345, 
+        destination_ip: 192.168.1.2, destination_port: 137
     }
     - {
         protocol: icmp, 
@@ -125,6 +143,12 @@ OUTSIDE: # One dictionary per interface
     }
 
   drop: # rules you expect to be blocked by the firewall
+   - {
+        protocol: tcp, 
+        icmp_type: , icmp_code: ,
+        source_ip: 192.168.1.1, source_port: 12345, 
+        destination_ip: [host1, host2, host3], destination_port: 1443
+    }
     - {
         protocol: tcp, 
         icmp_type: ,
@@ -155,47 +179,148 @@ name 192.168.1.2 device2
 ```
 
 ## Running the tool
+### Full Run-through
 ```
-$ clear; python3 tester.py -i 192.168.1.1 -u admin -p -y test.yml
+ clear; ./tester.py -i 192.168.1.1 -u admin -y test.yml -p -hf /tmp/names
 Password:
-[I 180315 18:11:48 tester:163] Attempting connection to 192.168.1.1
-[I 180315 18:11:54 tester:167] Connected to 192.168.1.1
+[I 180327 18:15:14 tester:54] Hostfile "/tmp/names" found and loaded
+[I 180327 18:15:14 tester:67] ! ---------- CONSTRUCTING TESTS ---------- !
 
-[I 180315 18:11:54 tester:172] Processing INSIDE tests
-[I 180315 18:11:54 tester:81] Starting tests that should [PASS] block
-[I 180315 18:11:54 tester:88] Processing tcp protocol policy
-[I 180315 18:11:54 tester:102] Processing: allow test, "packet-tracer input INSIDE tcp 192.168.1.1 12345 192.168.1.2 80 detail"
-[I 180315 18:11:55 tester:110] ASA reports: allow
-[I 180315 18:11:55 tester:116] Test passed!
+[D 180327 18:15:14 testcontrol:22] Context data loaded
+[D 180327 18:15:14 testcontrol:40] Dictionary for "INSIDE" created.
+[I 180327 18:15:14 testcontrol:180] Constructing "INSIDE", "allow" tests
+[I 180327 18:15:14 testcontrol:186] Processing tcp protocol policy
+[D 180327 18:15:14 testcontrol:61] List detect in destination_ip
+[I 180327 18:15:14 resolve:89] Source IP "10.1.1.1" is a valid IP, further resolution not required
 
-[I 180315 18:11:55 tester:88] Processing udp protocol policy
-[I 180315 18:11:55 tester:102] Processing: allow test, "packet-tracer input INSIDE udp 192.168.1.1 12345 192.168.1.2 8080 detail"
-[I 180315 18:11:55 tester:110] ASA reports: drop
-[I 180315 18:11:55 tester:113] Drop reason: (acl-drop) Flow is denied by configured rule
-[E 180315 18:11:55 tester:119] Test failed!
+[E 180327 18:15:14 resolve:94] Source IP "host1" is not a valid IP, further resolution required
+[I 180327 18:15:14 resolve:116] Looking up "host1" in hostfile
+[E 180327 18:15:14 resolve:44] Object: host1, IP: not found
+[I 180327 18:15:14 resolve:124] Attemping to resolve "host1" via DNS
+[I 180327 18:15:14 resolve:62] DNS resovled object "host1" to "192.168.1.1"
+[I 180327 18:15:14 resolve:89] Source IP "192.168.1.1" is a valid IP, further resolution not required
 
-[I 180315 18:11:55 tester:88] Processing icmp protocol policy
-[I 180315 18:11:55 tester:102] Processing: allow test, "packet-tracer input INSIDE icmp 192.168.1.1 8 0 192.168.1.2 detail"
-[I 180315 18:11:56 tester:110] ASA reports: allow
-[I 180315 18:11:56 tester:116] Test passed!
+[E 180327 18:15:14 resolve:94] Source IP "host2" is not a valid IP, further resolution required
+[I 180327 18:15:14 resolve:116] Looking up "host2" in hostfile
+[I 180327 18:15:14 resolve:35] Found: name 192.168.1.2 host2, on line 143
+[I 180327 18:15:14 resolve:41] Object: host2, IP: 192.168.1.2
+[I 180327 18:15:14 resolve:89] Source IP "192.168.1.2" is a valid IP, further resolution not required
 
-[I 180315 18:11:56 tester:83] Starting tests that should [FAIL] block
-[I 180315 18:11:56 tester:88] Processing tcp protocol policy
-[I 180315 18:11:56 tester:102] Processing: drop test, "packet-tracer input INSIDE tcp 192.168.1.1 12345 192.168.1.2 12345 detail"
-[I 180315 18:11:56 tester:110] ASA reports: drop
-[I 180315 18:11:56 tester:113] Drop reason: (acl-drop) Flow is denied by configured rule
-[I 180315 18:11:56 tester:116] Test passed!
+[E 180327 18:15:14 resolve:94] Source IP "host3" is not a valid IP, further resolution required
+[I 180327 18:15:14 resolve:116] Looking up "host3" in hostfile
+[I 180327 18:15:14 resolve:35] Found: name 192.168.1.3 host3, on line 136
+[I 180327 18:15:14 resolve:41] Object: host3, IP: 192.168.1.3
+[I 180327 18:15:14 resolve:89] Source IP "192.168.1.3" is a valid IP, further resolution not required
 
-[I 180315 18:11:56 tester:88] Processing tcp protocol policy
-[I 180315 18:11:56 tester:102] Processing: drop test, "packet-tracer input INSIDE tcp 192.168.1.1 12345 192.168.1.2 443 detail"
-[I 180315 18:11:57 tester:110] ASA reports: allow
-[E 180315 18:11:57 tester:119] Test failed!
+[E 180327 18:15:14 resolve:94] Source IP "host4" is not a valid IP, further resolution required
+[I 180327 18:15:14 resolve:116] Looking up "host4" in hostfile
+[I 180327 18:15:14 resolve:35] Found: name 192.168.1.4 host4, on line 150
+[I 180327 18:15:14 resolve:41] Object: host4, IP: 192.168.1.4
+[I 180327 18:15:14 resolve:89] Source IP "192.168.1.4" is a valid IP, further resolution not required
+[I 180327 18:15:14 testcontrol:186] Processing tcp protocol policy
+[I 180327 18:15:14 resolve:89] Source IP "10.1.1.1" is a valid IP, further resolution not required
 
-[D 180315 18:11:57 report:19] HTML report output to "/Coding/GitHub/cisco-asa-policy-tester/reports/html_report.html"
+[E 180327 18:15:14 resolve:94] Source IP "host5" is not a valid IP, further resolution required
+[I 180327 18:15:14 resolve:116] Looking up "host5" in hostfile
+[I 180327 18:15:14 resolve:35] Found: name 192.168.1.5 host5, on line 93
+[I 180327 18:15:14 resolve:41] Object: host5, IP: 192.168.1.5
+[I 180327 18:15:14 resolve:89] Source IP "192.168.1.5" is a valid IP, further resolution not required
+
+
+[I 180327 18:15:14 tester:73] ! ----------   EXECUTING TESTS  ---------- !
+
+[I 180327 18:15:14 tester:74] Attempting connection to 192.168.1.1
+[I 180327 18:15:19 testcontrol:323] Excuting interface INSIDE test record, "0"
+[I 180327 18:15:19 testcontrol:324] Command: packet-tracer input INSIDE tcp 10.1.1.1 12345 192.168.1.1 3389 detail
+[I 180327 18:15:20 testcontrol:332] Expecting: allow
+[I 180327 18:15:20 testcontrol:334] ASA reports: drop
+[I 180327 18:15:20 testcontrol:346] Drop reason: (no-route) No route to host
+[E 180327 18:15:20 testcontrol:353] Test failed!
+
+[I 180327 18:15:20 testcontrol:323] Excuting interface INSIDE test record, "0"
+[I 180327 18:15:20 testcontrol:324] Command: packet-tracer input INSIDE tcp 10.1.1.1 12345 192.168.1.2 3389 detail
+[I 180327 18:15:20 testcontrol:332] Expecting: allow
+[I 180327 18:15:20 testcontrol:334] ASA reports: allow
+[I 180327 18:15:20 testcontrol:350] Test passed!
+
+[I 180327 18:15:20 testcontrol:323] Excuting interface INSIDE test record, "0"
+[I 180327 18:15:20 testcontrol:324] Command: packet-tracer input INSIDE tcp 10.1.1.1 12345 192.168.1.3 3389 detail
+[I 180327 18:15:21 testcontrol:332] Expecting: allow
+[I 180327 18:15:21 testcontrol:334] ASA reports: allow
+[I 180327 18:15:21 testcontrol:350] Test passed!
+
+[I 180327 18:15:21 testcontrol:323] Excuting interface INSIDE test record, "0"
+[I 180327 18:15:21 testcontrol:324] Command: packet-tracer input INSIDE tcp 10.1.1.1 12345 192.168.1.4 3389 detail
+[I 180327 18:15:22 testcontrol:332] Expecting: allow
+[I 180327 18:15:22 testcontrol:334] ASA reports: allow
+[I 180327 18:15:22 testcontrol:350] Test passed!
+
+[I 180327 18:15:22 testcontrol:323] Excuting interface INSIDE test record, "1"
+[I 180327 18:15:22 testcontrol:324] Command: packet-tracer input INSIDE tcp 10.1.1.1 12345 192.168.1.5 80 detail
+[I 180327 18:15:22 testcontrol:332] Expecting: allow
+[I 180327 18:15:22 testcontrol:334] ASA reports: allow
+[I 180327 18:15:22 testcontrol:350] Test passed!
+
+[D 180327 18:15:22 report:19] HTML report output to "/Coding/GitHub/cisco-asa-policy-tester/reports/html_report.html"
+```
+
+### Example of Failed IP resolution
+```
+$ clear; ./tester.py -i 192.168.1.1 -u admin -y test.yml -p -hf /tmp/names
+Password:
+[I 180327 18:26:52 tester:54] Hostfile "/tmp/names" found and loaded
+[I 180327 18:26:52 tester:66] ! ---------- CONSTRUCTING TESTS ---------- !
+
+[D 180327 18:26:52 testcontrol:22] Context data loaded
+[D 180327 18:26:52 testcontrol:40] Dictionary for "INSIDE" created.
+[I 180327 18:26:52 testcontrol:180] Constructing "INSIDE", "allow" tests
+[I 180327 18:26:52 testcontrol:186] Processing tcp protocol policy
+[D 180327 18:26:52 testcontrol:61] List detect in destination_ip
+[I 180327 18:26:52 resolve:89] Source IP "10.1.1.1" is a valid IP, further resolution not required
+
+[E 180327 18:26:52 resolve:94] Source IP "host1" is not a valid IP, further resolution required
+[I 180327 18:26:52 resolve:116] Looking up "host1" in hostfile
+[E 180327 18:26:52 resolve:44] Object: host1, IP: not found
+[I 180327 18:26:52 resolve:124] Attemping to resolve "host1" via DNS
+[I 180327 18:26:53 resolve:66] DNS resolution failed for object "host1"
+[E 180327 18:26:53 resolve:97] Unable to resolve "host1" to an IP Address
+```
+
+### Example of hostfile resolution with DNS fallback
+```
+ clear; ./tester.py -i 192.168.1.1 -u admin -y test.yml -p -hf /tmp/names
+Password:
+[I 180327 18:15:14 tester:54] Hostfile "/tmp/names" found and loaded
+[I 180327 18:15:14 tester:67] ! ---------- CONSTRUCTING TESTS ---------- !
+
+[D 180327 18:15:14 testcontrol:22] Context data loaded
+[D 180327 18:15:14 testcontrol:40] Dictionary for "INSIDE" created.
+[I 180327 18:15:14 testcontrol:180] Constructing "INSIDE", "allow" tests
+[I 180327 18:15:14 testcontrol:186] Processing tcp protocol policy
+[D 180327 18:15:14 testcontrol:61] List detect in destination_ip
+[I 180327 18:15:14 resolve:89] Source IP "10.1.1.1" is a valid IP, further resolution not required
+
+[E 180327 18:15:14 resolve:94] Source IP "host1" is not a valid IP, further resolution required
+[I 180327 18:15:14 resolve:116] Looking up "host1" in hostfile
+[E 180327 18:15:14 resolve:44] Object: host1, IP: not found
+[I 180327 18:15:14 resolve:124] Attemping to resolve "host1" via DNS
+[I 180327 18:15:14 resolve:62] DNS resovled object "host1" to "192.168.1.1"
+[I 180327 18:15:14 resolve:89] Source IP "192.168.1.1" is a valid IP, further resolution not required
 ```
 
 ## Report Output
-![alt text](https://i.imgur.com/83lz6Ov.png "Report Output")
+### Fail and Pass Tests
+![alt text](https://i.imgur.com/WAByh3g.png "Report Output")
+
+## Failed with NAT and RPF-Violation
+**All failure types are captured**
+![alt text](https://i.imgur.com/kq2oIWD.png "Failed with NAT")
 
 ### NAT Detection
 ![alt text](https://i.imgur.com/Nqhr8EH.png "NAT Detection")
+
+### Skipped Tests
+![alt text](https://i.imgur.com/7SryMhT.png "Skipped Test")
+
+
+

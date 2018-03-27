@@ -58,18 +58,21 @@ if __name__ == "__main__":
         hostfile_status = False
         pass
 
-    
     try:
         # store the yaml tests
         with open('{}/tests/{}'.format(script_dir, YAML_FILE), 'r') as yml:
             yaml_data = yaml.safe_load(yml)
 
-        test_control = TestControl(script_dir, yaml_data, hostfile_status, hostfile_list)  # call TestControl
+        logger.info('! ---------- CONSTRUCTING TESTS ---------- !\n')
+
+        test_control = TestControl(
+            script_dir, yaml_data, hostfile_status, hostfile_list)  # call TestControl
         testset = test_control.construct_testset()   # Build testset
 
+        print('\n')
+        logger.info('! ----------   EXECUTING TESTS  ---------- !\n')
         logger.info('Attempting connection to {}'.format(device['ip']))
 
-    
         connect = ConnectHandler(**device)
         if connect:
             results = test_control.execute(testset, connect)

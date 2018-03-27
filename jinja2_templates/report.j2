@@ -84,7 +84,7 @@
                             <td>{{row.source_port}}</td>
                             <td>{{row.icmp_type}}</td>
                             <td>{{row.icmp_code}}</td>
-                            <td>{{row.destination_ip}}</td>
+                            <td>{{row.destination_ip.ip_address|default(row.destination_ip)}}</td>
                             <td>{{row.destination_port}}</td>
                             <td>{{row.drop_reason}}</td>
                             <td>{{row.action}}</td>
@@ -101,7 +101,7 @@
                             </td>
                         </tr>
                         {% endif %}
-                        {% if row.grade == '[SKIP]' %}}
+                        {% if row.grade == '[SKIP]' %}
                         <tr class="{{row_color}}">
                             <td colspan="12">
                                 <span style="color:#3d3d3d; font-size: 12px; font-weight: bold;">

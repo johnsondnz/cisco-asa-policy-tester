@@ -86,7 +86,7 @@ class Lookup(object):
         try:
             ip_address = validate_address if IPAddress(validate_address) else False
             logger.info(
-                'Source IP "{}" is a valid IP, further resolution not required'.format(validate_address))
+                'Source IP "{}" is a valid IP, further resolution not required\n'.format(validate_address))
             return { 'result': True, 'ip_address': ip_address }
         except ValueError:
             if recheck == False:
@@ -94,7 +94,7 @@ class Lookup(object):
                     'Source IP "{}" is not a valid IP, further resolution required'.format(validate_address))
             else:
                 logger.error(
-                    'Unable to resolve "{}" to an IP Address'.format(validate_address))
+                    'Unable to resolve "{}" to an IP Address\n'.format(validate_address))
             return { 'result': False, 'ip_address': validate_address }
 
         
@@ -128,4 +128,4 @@ class Lookup(object):
         if self.validate_ip(results['ip_address'], True)['result'] == True:
             return { 'result': True, 'ip_address': results['ip_address'] }
         else:
-           return { 'result': False, 'ip_address': self.validate_address, 'msg': 'Unable to resolve address' }
+            return { 'result': False, 'ip_address': self.validate_address, 'msg': 'Unable to resolve address' }
