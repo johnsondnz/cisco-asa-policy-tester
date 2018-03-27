@@ -12,6 +12,7 @@ Value DROP_REASON (.*)
 
 Start
   ^Phase: 1 -> Results
+  ^Result -> Results
 
 Results
   ^${NAT_RULE}
