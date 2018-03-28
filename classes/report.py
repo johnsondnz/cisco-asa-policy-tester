@@ -16,4 +16,4 @@ class GenerateReport(object):
             f.write(HTML)
         f.close()
 
-        logger.debug('HTML report output to "{}/reports/html_report.html"'.format(script_dir))
+        logger.info('HTML report output to "{}/reports/html_report.html"'.format(script_dir))
