@@ -77,6 +77,7 @@
                         {% set row_color = 'table-danger' %}
                     {% endif %}
                     <tbody>
+                        {% set addtional_info = true if row.nat_rule or row.grade == '[FAIL]' or row.grade == '[SKIP]' %}
                         <tr class="{{row_color}}" data-toggle="tooltip" title="{{row.yaml_row}}">
                             <td>{{row.index + 1}}</td>
                             <td>{{row.protocol}}</td>
@@ -91,30 +92,20 @@
                             <td>{{row.expected_result}}</td>
                             <td>{{row.grade}}</td>
                         </tr>
-                        {% if row.nat_rule %}
+                        {% if addtional_info %}
                         <tr class="{{row_color}}">
                             <td colspan="12">
                                 <span style="color:#3d3d3d; font-size: 12px; font-weight: bold;">
+                                    {% if row.nat_rule %}
                                     NAT Detected: from {{row.nat_from}} to {{row.nat_to}}<br />
                                     Nat Rule: {{row.nat_rule}}
-                                </span>
-                            </td>
-                        </tr>
-                        {% endif %}
-                        {% if row.grade == '[SKIP]' %}
-                        <tr class="{{row_color}}">
-                            <td colspan="12">
-                                <span style="color:#3d3d3d; font-size: 12px; font-weight: bold;">
-                                    Unable to resolve named host to IP Address
-                                </span>
-                            </td>
-                        </tr>
-                        {% endif %}
-                        {% if row.grade == '[FAIL]' %}
-                        <tr class="{{row_color}}">
-                            <td colspan="12">
-                                <span style="color:#3d3d3d; font-size: 12px; font-weight: bold;">
+                                    {% endif %}
+                                    {% if row.grade == '[FAIL]' %}
                                     Command: {{row.command}}
+                                    {% endif %}
+                                    {% if row.grade == '[SKIP]' %}
+                                    Unable to resolve named host to IP Address
+                                    {% endif %}
                                 </span>
                             </td>
                         </tr>
