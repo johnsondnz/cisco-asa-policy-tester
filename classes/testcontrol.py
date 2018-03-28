@@ -51,12 +51,29 @@ class TestControl(object):
         Return dictionary of dictionaries
         '''
 
-        if isinstance(test_data['destination_ip'], list):
+        if isinstance(test_data['source_ip'], list) and isinstance(test_data['destination_ip'], str):
 
-            '''
-            normalises ip_information and commands
-            indexing will ensure the test and command line up in the pust to testset
-            '''
+            # logger.debug('List detect in destination_ip')
+
+            # setup the dict and list
+            ip_information = {}
+
+            # record the source_ip
+            destination_ip = Lookup(
+                test_data['destination_ip'], self.hostfile_status, self.hostfile_list)
+            ip_information['destination'] = destination_ip.get_ip()
+
+            # setup list
+            ip_information['sources'] = []
+
+            for host in test_data['source_ip']:
+
+                # store the destination_ip
+                source_ip = Lookup(
+                    host, self.hostfile_status, self.hostfile_list)
+                ip_information['sources'].append(source_ip.get_ip())
+
+        if isinstance(test_data['destination_ip'], list) and isinstance(test_data['source_ip'], str):
 
             # logger.debug('List detect in destination_ip')
 
@@ -68,7 +85,34 @@ class TestControl(object):
                 test_data['source_ip'], self.hostfile_status, self.hostfile_list)
             ip_information['source'] = source_ip.get_ip()
 
-            # setup destinations list
+            # setup list
+            ip_information['destinations'] = []
+
+            for host in test_data['destination_ip']:
+
+                # store the destination_ip
+                destination_ip = Lookup(
+                    host, self.hostfile_status, self.hostfile_list)
+                ip_information['destinations'].append(destination_ip.get_ip())
+
+        if isinstance(test_data['source_ip'], list) and isinstance(test_data['destination_ip'], list):
+
+            # logger.debug('List detect in destination_ip')
+
+            # setup the dict and list
+            ip_information = {}
+
+            # setup list
+            ip_information['sources'] = []
+
+            for host in test_data['source_ip']:
+
+                # store the destination_ip
+                source_ip = Lookup(
+                    host, self.hostfile_status, self.hostfile_list)
+                ip_information['sources'].append(source_ip.get_ip())
+
+            # setup list
             ip_information['destinations'] = []
 
             for host in test_data['destination_ip']:
@@ -79,7 +123,7 @@ class TestControl(object):
                 ip_information['destinations'].append(destination_ip.get_ip())
 
         # it's not a list so move on to standard processing
-        else:
+        if isinstance(test_data['source_ip'], str) and isinstance(test_data['destination_ip'], str):
 
             source_ip = Lookup(
                 test_data['source_ip'], self.hostfile_status, self.hostfile_list)
@@ -237,18 +281,23 @@ class TestControl(object):
         '''
 
         # setup the logic variables
+        multiple_src_ips = True if RecursiveSearch(
+            ip_information, 'sources') else False
         multiple_dest_ips = True if RecursiveSearch(
             ip_information, 'destinations') else False
         multiple_dest_ports = True if RecursiveSearch(
             port_information, 'destinations') else False
+
+        if multiple_src_ips == True:
+            print('yes')
 
         # logger.debug('-------- TEST DATA -----------')
         # for k,v in test_data.items():
         #     logger.debug('{}: {}'.format(k,v))
 
         # ------------------------------------------------------------------------------------------------------------------------- #
-        # check for single destination_port and single destination_ip
-        if multiple_dest_ips == False and multiple_dest_ports == False:
+        # check for single destination_port and single source_ip / destination_ip
+        if multiple_src_ips == False and multiple_dest_ips == False and multiple_dest_ports == False:
 
             # if the source and destination IP are valid flag testlet for execution
             execute = True if ip_information['source']['result'] != False and ip_information[
@@ -272,8 +321,8 @@ class TestControl(object):
             self._append_testlet(**testlet)
 
         # ------------------------------------------------------------------------------------------------------------------------- #
-        # process a single destination_port with multiple destination_ips
-        if multiple_dest_ips == True and multiple_dest_ports == False:
+        # process a single destination_port with single source_ip and multiple destination_ips
+        if multiple_src_ips == False and multiple_dest_ips == True and multiple_dest_ports == False:
 
             # ensure the destinations key is a list
             if isinstance(ip_information['destinations'], list):
@@ -300,8 +349,8 @@ class TestControl(object):
                     self._append_testlet(**testlet)
 
         # ------------------------------------------------------------------------------------------------------------------------- #
-        # check for multiple destination_ports with single destination_ip
-        if multiple_dest_ports == True and multiple_dest_ips == False:
+        # check for multiple destination_ports with single source_ip / destination_ip
+        if multiple_src_ips == False and multiple_dest_ports == True and multiple_dest_ips == False:
 
             # ensure the destinations key is a list
             if isinstance(port_information['destinations'], list):
@@ -328,8 +377,8 @@ class TestControl(object):
                     self._append_testlet(**testlet)
 
         # ------------------------------------------------------------------------------------------------------------------------- #
-        # check for multiple destination_ports with multiple destination_ips
-        if multiple_dest_ports == True and multiple_dest_ips == True:
+        # check for multiple destination_ports single source_ip and with multiple destination_ips
+        if multiple_src_ips == False and multiple_dest_ports == True and multiple_dest_ips == True:
 
             if isinstance(ip_information['destinations'], list):
 
