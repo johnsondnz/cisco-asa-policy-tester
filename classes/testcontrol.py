@@ -603,12 +603,12 @@ class TestControl(object):
                 logger.info('ASA reports: {}'.format(
                     test_results['asa_action']))
 
-                # # if NAT is reported log to terminal
-                # if test_results['nat_rule'] is not None:
-                #     logger.debug('NAT detected: {} to {}'.format(
-                #         test_results['nat_from'], test_results['nat_to']))
-                #     logger.debug('NAT rule: "{}"'.format(
-                #         test_results['nat_rule']))
+                # if NAT is reported log to terminal
+                if test_results['nat_rule'] is not None:
+                    logger.info('NAT detected: {} to {}'.format(
+                        test_results['nat_from'], test_results['nat_to']))
+                    logger.info('NAT rule: "{}"'.format(
+                        test_results['nat_rule']))
 
                 # log to terminal the drop reason if it exists
                 if test_results['drop_reason'] is not None:
