@@ -271,10 +271,11 @@ class TestControl(object):
             'destination_port': kwargs.get('destination_port') if kwargs.get('destination_port') is not None else '',
             'expected_result': kwargs.get('expected_result'),
             'execute': kwargs.get('execute'),
+            'yaml_row': kwargs.get('yaml_row'),
             'command': command
         })
 
-    def _construct_testlet(self, index, interface, ip_information, port_information, test_data):
+    def _construct_testlet(self, index, interface, ip_information, port_information, test_data, yaml_row):
         '''
         Builds the testset and returns it
         pushes the testlet into _append_testlet
@@ -315,6 +316,7 @@ class TestControl(object):
                 'destination_ip': ip_information['destination']['ip_address'] if ip_information['destination']['ip_address'] else '',
                 'destination_port': test_data['destination_port'] if test_data['destination_port'] else '',
                 'expected_result': test_data['expected_result'],
+                'yaml_row': yaml_row,
                 'execute': execute
             }
             self._append_testlet(**testlet)
@@ -343,6 +345,7 @@ class TestControl(object):
                         'destination_ip': ip_information['destination']['ip_address'] if ip_information['destination']['ip_address'] else '',
                         'destination_port': dest_port['port'] if dest_port['port'] else '',
                         'expected_result': test_data['expected_result'],
+                        'yaml_row': yaml_row,
                         'execute': execute
                     }
                     self._append_testlet(**testlet)
@@ -370,6 +373,7 @@ class TestControl(object):
                         'destination_ip': dest_ip['ip_address'] if dest_ip['ip_address'] else '',
                         'destination_port': test_data['destination_port'] if test_data['destination_port'] else '',
                         'expected_result': test_data['expected_result'],
+                        'yaml_row': yaml_row,
                         'execute': execute
                     }
 
@@ -402,6 +406,7 @@ class TestControl(object):
                                 'destination_ip': dest_ip['ip_address'] if dest_ip['ip_address'] else '',
                                 'destination_port': dest_port['port'] if dest_port['port'] else '',
                                 'expected_result': test_data['expected_result'],
+                                'yaml_row': yaml_row,
                                 'execute': execute
                             }
                             self._append_testlet(**testlet)
@@ -427,6 +432,7 @@ class TestControl(object):
                         'destination_ip': ip_information['destination']['ip_address'] if ip_information['destination']['ip_address'] else '',
                         'destination_port': test_data['destination_port'] if test_data['destination_port'] else '',
                         'expected_result': test_data['expected_result'],
+                        'yaml_row': yaml_row,
                         'execute': execute
                     }
 
@@ -458,6 +464,7 @@ class TestControl(object):
                                 'destination_ip': ip_information['destination']['ip_address'] if ip_information['destination']['ip_address'] else '',
                                 'destination_port': dest_port['port'] if dest_port['port'] else '',
                                 'expected_result': test_data['expected_result'],
+                                'yaml_row': yaml_row,
                                 'execute': execute
                             }
                             self._append_testlet(**testlet)
@@ -485,6 +492,7 @@ class TestControl(object):
                             'destination_ip': dest_ip['ip_address'] if dest_ip['ip_address'] else '',
                             'destination_port': test_data['destination_port'] if test_data['destination_port'] else '',
                             'expected_result': test_data['expected_result'],
+                            'yaml_row': yaml_row,
                             'execute': execute
                         }
                         self._append_testlet(**testlet)
@@ -517,6 +525,7 @@ class TestControl(object):
                                     'destination_ip': dest_ip['ip_address'] if dest_ip['ip_address'] else '',
                                     'destination_port': dest_port['port'] if dest_port['port'] else '',
                                     'expected_result': test_data['expected_result'],
+                                    'yaml_row': yaml_row,
                                     'execute': execute
                                 }
                                 self._append_testlet(**testlet)
@@ -541,17 +550,21 @@ class TestControl(object):
             # iterate through the action list
             for index, test_data in enumerate(item):
 
+                # logger.debug('Processing test item {}'.format(index))
+
                 # will use this later for a HTML5/Bootstrap on-hover tooltip.
                 # Sent to self.jinja2_results later
                 # Use this to ensure presented data is the raw row from yaml
                 # Not the processed information post name resolution etc.
                 self.yaml_row = test_data
 
+                # logger.debug('item {} data: {}'.format(index,self.yaml_row))
+
                 ip_information = self._host_lookup(test_data)
                 port_information = self._port_information(test_data)
 
                 self._construct_testlet(index, 
-                    interface, ip_information, port_information, test_data)
+                    interface, ip_information, port_information, test_data, self.yaml_row)
 
         return self.testset
 
@@ -623,7 +636,7 @@ class TestControl(object):
                     'nat_from': test_results['nat_from'] if test_results['nat_from'] is not None else '',
                     'nat_to': test_results['nat_to'] if test_results['nat_to'] is not None else '',
                     'nat_rule': test_results['nat_rule'] if test_results['nat_rule'] is not None else '',
-                    'yaml_row': self.yaml_row,
+                    'yaml_row': test_data['yaml_row'],
                     'grade': grade
                 })
             else:
@@ -644,7 +657,7 @@ class TestControl(object):
                     'nat_from': '',
                     'nat_to': '',
                     'nat_rule': '',
-                    'yaml_row': self.yaml_row,
+                    'yaml_row': test_data['yaml_row'],
                     'grade': '[SKIP]'
                 })
                 logger.error('Skipping test record "{}" for interface "{}", invalid addresses detected\n'.format(
