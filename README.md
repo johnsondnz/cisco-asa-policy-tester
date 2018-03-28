@@ -20,6 +20,7 @@ At this time the tool requires a privilege-level 15 user.  It is untested with l
 
 ## New to Version 0.7 - 29-03-2018
 - Added support for multiple source_ips and combinations with multiple destination_ips and multiple destination_ports.
+- Added ESP protocol support using raw packet-tracer command.
 
 ## New to Version 0.6 - 28-03-2018
 - Added support for mutli-destination port per test, see YAML examples below.
