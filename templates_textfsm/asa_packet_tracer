@@ -16,7 +16,7 @@ Start
 
 Results
   ^.+${NAT_RULE}
-  ^.+${NAT_FROM} to ${NAT_TO}
+  ^.+translate ${NAT_FROM} to ${NAT_TO}
   ^input-interface: ${INPUT_INTERFACE}
   ^input-status: ${INPUT_STATUS}
   ^input-line-status: ${INPUT_LINE_STATUS}
