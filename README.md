@@ -18,12 +18,15 @@ At this time the tool requires a privilege-level 15 user.  It is untested with l
 - jinja2
 - ipaddr
 
+## New to Version 0.7 - 29-03-2018
+- Added support for multiple source_ips and combinations with multiple destination_ips and multiple destination_ports.
+
 ## New to Version 0.6 - 28-03-2018
 - Added support for mutli-destination port per test, see YAML examples below.
 - Also supports single destination IP and single destination port.
 - Also supports multiple destination IP with multiple destination port.
 - Supports multiple destinations for ICMP using a single icmp-type and icmp-code.
-- Change to YAML structure, *action*is moved to a leaf called *expected_result*
+- Change to YAML structure, *action* is moved to a leaf called *expected_result*
 - Implemented automated `tests/retry.yml` generation for rerun of failed tests without need to repeat passed tests.
   - File is deleted with each run.
 - Added on hover tooltip for each row, this shows the viewer which yaml test the row was produced from.
