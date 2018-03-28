@@ -110,6 +110,15 @@
                             </td>
                         </tr>
                         {% endif %}
+                        {% if row.grade == '[FAIL]' %}
+                        <tr class="{{row_color}}">
+                            <td colspan="12">
+                                <span style="color:#3d3d3d; font-size: 12px; font-weight: bold;">
+                                    Command: {{row.command}}
+                                </span>
+                            </td>
+                        </tr>
+                        {% endif %}
                     </tbody>
                     {% endfor %}
                 </table>
