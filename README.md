@@ -45,7 +45,7 @@ At this time the tool requires a privilege-level 15 user.  It is untested with l
 ## ToDo
 - Test and implement enable password.
 - Implement expected NAT resolution.
-- Use indexed test results to pull correlate to yaml data.  This will enable copy/paste like function to retry.yml
+- Use indexed test results to correlate to yaml data.  This will enable copy/paste like function to retry.yml
 
 ## Usage
 - `python3 tester.py -i <IP> -u <USERNAME> -p -y <yml_definition> -hf <path/to/hostfile>`
