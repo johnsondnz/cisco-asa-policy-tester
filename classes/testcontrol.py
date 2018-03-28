@@ -244,6 +244,13 @@ class TestControl(object):
                 kwargs.get('destination_ip')
             )
 
+        elif 'esp' in str(kwargs.get('protocol').lower()):
+            command = 'packet-tracer input {} raw {} 50 {} detail'.format(
+                kwargs.get('interface'),
+                kwargs.get('source_ip'),
+                kwargs.get('destination_ip')
+            )
+
         # logger.debug('-------- APPENDED DATA -----------')
         # logger.debug({
         #     'interface': kwargs.get('interface'),
