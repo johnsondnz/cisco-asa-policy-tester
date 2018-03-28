@@ -58,13 +58,14 @@ class TestControl(object):
             indexing will ensure the test and command line up in the pust to testset
             '''
 
-            logger.debug('List detect in destination_ip')
-            
+            # logger.debug('List detect in destination_ip')
+
             # setup the dict and list
             ip_information = {}
 
             # record the source_ip
-            source_ip = Lookup(test_data['source_ip'], self.hostfile_status, self.hostfile_list)
+            source_ip = Lookup(
+                test_data['source_ip'], self.hostfile_status, self.hostfile_list)
             ip_information['source'] = source_ip.get_ip()
 
             # setup destinations list
@@ -73,87 +74,290 @@ class TestControl(object):
             for host in test_data['destination_ip']:
 
                 # store the destination_ip
-                destination_ip = Lookup(host, self.hostfile_status, self.hostfile_list)
+                destination_ip = Lookup(
+                    host, self.hostfile_status, self.hostfile_list)
                 ip_information['destinations'].append(destination_ip.get_ip())
 
         # it's not a list so move on to standard processing
         else:
-            
-            source_ip = Lookup(test_data['source_ip'], self.hostfile_status, self.hostfile_list)
-            destination_ip = Lookup(test_data['destination_ip'], self.hostfile_status, self.hostfile_list)
+
+            source_ip = Lookup(
+                test_data['source_ip'], self.hostfile_status, self.hostfile_list)
+            destination_ip = Lookup(
+                test_data['destination_ip'], self.hostfile_status, self.hostfile_list)
 
             ip_information = {
                 'source': source_ip.get_ip(),
                 'destination': destination_ip.get_ip()
             }
-        
+
         return ip_information
 
-    def _construct_command(self, interface, ip_information, test_data):
+    def _port_information(self, test_data):
         '''
-        Builds a single command for a testset
-        Returns a dictionary the indicates if a list of commands follows or a single commands
+        Takes test data and returns either a deictionary of port strings or a dictionary of list of ports for command construction to use.
+        Current stores all sources and destinations.
         '''
 
-        # Check for the destinations key which means a list will follow
-        if RecursiveSearch(ip_information, 'destinations'):
+        # setup the dict and list
+        port_information = {}
+
+        if isinstance(test_data['source_port'], list):
+
+            # logger.debug('List detect in source_port')
+
+            # setup the ports list
+            port_information['sources'] = []
+
+            for port in test_data['source_port']:
+
+                # store the source_ports
+                # validate that the ports lies within the range 0-65535
+                if port <= 65535 and port >= 0:
+                    port_information['sources'].append(
+                        {'valid': True, 'port': port})
+                else:
+                    port_information['sources'].append(
+                        {'valid': False, 'port': port})
+
+        if isinstance(test_data['destination_port'], list):
+
+            # logger.debug('List detect in destination_port')
+
+            # setup the ports list
+            port_information['destinations'] = []
+
+            for port in test_data['destination_port']:
+
+                # store the destination_ports
+                # validate that the ports lies within the range 0-65535
+                if port <= 65535 and port >= 0:
+                    port_information['destinations'].append(
+                        {'valid': True, 'port': port})
+                else:
+                    port_information['destinations'].append(
+                        {'valid': False, 'port': port})
+
+        # now check for integer/string fields
+        if isinstance(test_data['source_port'], str) or isinstance(test_data['source_port'], int):
+
+            # logger.debug('String or integer detect in source_port')
+
+            # validate that the ports lies within the range 0-65535
+            if test_data['source_port'] <= 65535 and test_data['source_port'] >= 0:
+                port_information['source'] = {
+                    'valid': True, 'port': test_data['source_port']}
+            else:
+                port_information['source'] = {
+                    'valid': False, 'port': test_data['source_port']}
+
+        if isinstance(test_data['destination_port'], str) or isinstance(test_data['destination_port'], int):
+
+            # logger.debug('String or integer detect in destination_port')
+
+            # validate that the ports lies within the range 0-65535
+            if test_data['destination_port'] <= 65535 and test_data['destination_port'] >= 0:
+                port_information['destination'] = {
+                    'valid': True, 'port': test_data['destination_port']}
+            else:
+                port_information['destination'] = {
+                    'valid': False, 'port': test_data['destination_port']}
+
+        return port_information
+
+    def _append_testlet(self, **kwargs):
+        '''
+        Takes a single testlet and appends it to the testset
+        '''
+
+        # logger.debug('-------- RECEIVED DATA -----------')
+        # for k, v, in kwargs.items():
+        #     logger.debug('{}: {}'.format(k,v))
+
+        if re.match(r'(udp|tcp)', str(kwargs.get('protocol').lower())):
+
+            # logger.debug('Processing {} data'.format(kwargs.get('protocol').lower()))
+
+            command = 'packet-tracer input {} {} {} {} {} {} detail'.format(
+                kwargs.get('interface'),
+                kwargs.get('protocol'),
+                kwargs.get('source_ip'),
+                kwargs.get('source_port'),
+                kwargs.get('destination_ip'),
+                kwargs.get('destination_port')
+            )
+
+        elif 'icmp' in str(kwargs.get('protocol').lower()):
+
+            # logger.debug('Processing {} data'.format(kwargs.get('protocol').lower()))
+
+            command = 'packet-tracer input {} {} {} {} {} {} detail'.format(
+                kwargs.get('interface'),
+                kwargs.get('protocol'),
+                kwargs.get('source_ip'),
+                kwargs.get('icmp_type'),
+                kwargs.get('icmp_code'),
+                kwargs.get('destination_ip')
+            )
+
+        # logger.debug('-------- APPENDED DATA -----------')
+        # logger.debug({
+        #     'interface': kwargs.get('interface'),
+        #     'protocol': kwargs.get('protocol'),
+        #     'source_ip': kwargs.get('source_ip'),
+        #     'source_port': kwargs.get('source_port') if kwargs.get('source_port') is not None else '',
+        #     'icmp_type': kwargs.get('icmp_type') if kwargs.get('icmp_type') is not None else '',
+        #     'icmp_code': kwargs.get('icmp_code') if kwargs.get('icmp_code') is not None else '',
+        #     'destination_ip': kwargs.get('destination_ip'),
+        #     'destination_port': kwargs.get('destination_port') if kwargs.get('destination_port') is not None else '',
+        #     'expected_result': kwargs.get('action'),
+        #     'execute': kwargs.get('execute'),
+        #     'command': command
+        # })
+
+        self.testset.append({
+            'interface': kwargs.get('interface'),
+            'index': kwargs.get('index'),
+            'protocol': kwargs.get('protocol'),
+            'source_ip': kwargs.get('source_ip'),
+            'source_port': kwargs.get('source_port') if kwargs.get('source_port') is not None else '',
+            'icmp_type': kwargs.get('icmp_type') if kwargs.get('icmp_type') is not None else '',
+            'icmp_code': kwargs.get('icmp_code') if kwargs.get('icmp_code') is not None else '',
+            'destination_ip': kwargs.get('destination_ip'),
+            'destination_port': kwargs.get('destination_port') if kwargs.get('destination_port') is not None else '',
+            'expected_result': kwargs.get('expected_result'),
+            'execute': kwargs.get('execute'),
+            'command': command
+        })
+
+    def _construct_testlet(self, index, interface, ip_information, port_information, test_data):
+        '''
+        Builds the testset and returns it
+        pushes the testlet into _append_testlet
+        '''
+
+        # setup the logic variables
+        multiple_dest_ips = True if RecursiveSearch(
+            ip_information, 'destinations') else False
+        multiple_dest_ports = True if RecursiveSearch(
+            port_information, 'destinations') else False
+
+        # logger.debug('-------- TEST DATA -----------')
+        # for k,v in test_data.items():
+        #     logger.debug('{}: {}'.format(k,v))
+
+        # ------------------------------------------------------------------------------------------------------------------------- #
+        # check for single destination_port and single destination_ip
+        if multiple_dest_ips == False and multiple_dest_ports == False:
+
+            # if the source and destination IP are valid flag testlet for execution
+            execute = True if ip_information['source']['result'] != False and ip_information[
+                'destination']['result'] != False else False
+
+            # Setup ICMP Type and Code
+
+            testlet = {
+                'index': index,
+                'interface': interface,
+                'protocol': test_data['protocol'],
+                'source_ip': ip_information['source']['ip_address'],
+                'icmp_type': test_data['icmp_type'] if isinstance(test_data['icmp_type'], int) else '',
+                'icmp_code': test_data['icmp_code'] if isinstance(test_data['icmp_code'], int) else '',
+                'source_port': test_data['source_port'] if test_data['source_port'] else '',
+                'destination_ip': ip_information['destination']['ip_address'] if ip_information['destination']['ip_address'] else '',
+                'destination_port': test_data['destination_port'] if test_data['destination_port'] else '',
+                'expected_result': test_data['expected_result'],
+                'execute': execute
+            }
+            self._append_testlet(**testlet)
+
+        # ------------------------------------------------------------------------------------------------------------------------- #
+        # process a single destination_port with multiple destination_ips
+        if multiple_dest_ips == True and multiple_dest_ports == False:
+
             # ensure the destinations key is a list
             if isinstance(ip_information['destinations'], list):
 
-                '''
-                List detection
-                '''
+                for dest_ip in ip_information['destinations']:
 
-                command = []
+                    # if the source and destination IP are valid flag testlet for executution
+                    execute = True if ip_information['source']['result'] != False and dest_ip['result'] != False else False
+
+                    testlet = {
+                        'index': index,
+                        'interface': interface,
+                        'protocol': test_data['protocol'],
+                        'source_ip': ip_information['source']['ip_address'],
+                        'icmp_type': test_data['icmp_type'] if isinstance(test_data['icmp_type'], int) else '',
+                        'icmp_code': test_data['icmp_code'] if isinstance(test_data['icmp_code'], int) else '',
+                        'source_port': test_data['source_port'] if test_data['source_port'] else '',
+                        'destination_ip': dest_ip['ip_address'] if dest_ip['ip_address'] else '',
+                        'destination_port': test_data['destination_port'] if test_data['destination_port'] else '',
+                        'expected_result': test_data['expected_result'],
+                        'execute': execute
+                    }
+
+                    self._append_testlet(**testlet)
+
+        # ------------------------------------------------------------------------------------------------------------------------- #
+        # check for multiple destination_ports with single destination_ip
+        if multiple_dest_ports == True and multiple_dest_ips == False:
+
+            # ensure the destinations key is a list
+            if isinstance(port_information['destinations'], list):
+
+                for dest_port in port_information['destinations']:
+
+                    # if the source and destination IP are valid flag testlet for executution
+                    execute = True if ip_information['source']['result'] != False and ip_information[
+                        'destination']['result'] != False else False
+
+                    testlet = {
+                        'index': index,
+                        'interface': interface,
+                        'protocol': test_data['protocol'],
+                        'source_ip': ip_information['source']['ip_address'],
+                        'icmp_type': test_data['icmp_type'] if isinstance(test_data['icmp_type'], int) else '',
+                        'icmp_code': test_data['icmp_code'] if isinstance(test_data['icmp_code'], int) else '',
+                        'source_port': test_data['source_port'] if test_data['source_port'] else '',
+                        'destination_ip': ip_information['destination']['ip_address'] if ip_information['destination']['ip_address'] else '',
+                        'destination_port': dest_port['port'] if dest_port['port'] else '',
+                        'expected_result': test_data['expected_result'],
+                        'execute': execute
+                    }
+                    self._append_testlet(**testlet)
+
+        # ------------------------------------------------------------------------------------------------------------------------- #
+        # check for multiple destination_ports with multiple destination_ips
+        if multiple_dest_ports == True and multiple_dest_ips == True:
+
+            if isinstance(ip_information['destinations'], list):
 
                 for dest_ip in ip_information['destinations']:
 
-                    if re.match(r'(udp|tcp)', str(test_data['protocol'].lower())):
+                    # if the source and destination IP are valid flag testlet for executution
+                    execute = True if ip_information['source']['result'] != False and dest_ip['result'] != False else False
 
-                        cmd = 'packet-tracer input {} {} {} {} {} {} detail'.format(
-                            interface, test_data['protocol'], ip_information['source']['ip_address'], test_data['source_port'], dest_ip['ip_address'], test_data['destination_port'])
-                        command.append(cmd)
+                    # ensure the destinations key is a list
+                    if isinstance(port_information['destinations'], list):
 
-                    elif 'icmp' in str(test_data['protocol'].lower()):
+                        for dest_port in port_information['destinations']:
 
-                        cmd = 'packet-tracer input {} {} {} {} {} {} detail'.format(
-                            interface, test_data['protocol'], ip_information['source']['ip_address'], test_data['icmp_type'], test_data['icmp_code'], dest_ip['ip_address'])
-                        command.append(cmd)
-
-        else:
-
-            if re.match(r'(udp|tcp)', str(test_data['protocol'].lower())):
-
-                command = 'packet-tracer input {} {} {} {} {} {} detail'.format(
-                    interface, test_data['protocol'], ip_information['source']['ip_address'], test_data['source_port'], ip_information['destination']['ip_address'], test_data['destination_port'])
-
-            elif 'icmp' in str(test_data['protocol'].lower()):
-
-                command = 'packet-tracer input {} {} {} {} {} {} detail'.format(
-                    interface, test_data['protocol'], ip_information['source']['ip_address'], test_data['icmp_type'], test_data['icmp_code'], ip_information['destination']['ip_address'])
-
-        if isinstance(command, list):
-            return { 'list': True, 'commands': command }
-        else:
-            return { 'list': False, 'command': command }
-
-    def _append_test_yes(self, **data):
-
-        '''
-        Appends a test that will be executed.
-        '''
-
-        pass
-
-    
-    def _append_test_no(self, **data):
-
-        '''
-        Appends a test that will be skipped.
-        '''
-
-        pass
-
+                            testlet = {
+                                'index': index,
+                                'interface': interface,
+                                'protocol': test_data['protocol'],
+                                'source_ip': ip_information['source']['ip_address'],
+                                'icmp_type': test_data['icmp_type'] if isinstance(test_data['icmp_type'], int) else '',
+                                'icmp_code': test_data['icmp_code'] if isinstance(test_data['icmp_code'], int) else '',
+                                'source_port': test_data['source_port'] if test_data['source_port'] else '',
+                                'destination_ip': dest_ip['ip_address'] if dest_ip['ip_address'] else '',
+                                'destination_port': dest_port['port'] if dest_port['port'] else '',
+                                'expected_result': test_data['expected_result'],
+                                'execute': execute
+                            }
+                            self._append_testlet(**testlet)
+        # ------------------------------------------------------------------------------------------------------------------------- #
 
     def construct_testset(self):
         '''
@@ -165,146 +369,26 @@ class TestControl(object):
         Returns the testset for use un exectute method.
         '''
 
-        # create the action items
-        actions = ['allow', 'drop']
+        # delete any retry file before starting
+        self._delete_retry()
 
-        for action in actions:
+        # iterate through the interface dictionary and actions list
+        for interface, item in self.context.items():
 
-            # iterate through the interface dictionary and actions list
-            for interface, item in self.context.items():
+            # iterate through the action list
+            for index, test_data in enumerate(item):
 
-                # check that the interface dictionary contains the action item list
-                if RecursiveSearch(item, action):
+                # will use this later for a HTML5/Bootstrap on-hover tooltip.
+                # Sent to self.jinja2_results later
+                # Use this to ensure presented data is the raw row from yaml
+                # Not the processed information post name resolution etc.
+                self.yaml_row = test_data
 
-                    logger.info('Constructing "{}", "{}" tests'.format(
-                        interface, action))
+                ip_information = self._host_lookup(test_data)
+                port_information = self._port_information(test_data)
 
-                    # iterate through the action list
-                    for index, test_data in enumerate(item[action]):
-
-                        logger.info('Processing {} protocol policy'.format(
-                            test_data['protocol'].lower()))
-                        
-                        ip_information = self._host_lookup(test_data)
-
-                        command = self._construct_command(
-                            interface, ip_information, test_data)
-
-                        '''
-                        Append the test to the testset
-                        [
-                            {
-                                yaml_row,   # in case of multiple checks per test
-                                interface,
-                                protocol,
-                                source_ip,
-                                source_port,
-                                destination_ip,
-                                destination_port,
-                                expected_result
-                            },
-
-                            OR
-
-                            {
-                                yaml_row,   # in case of multiple checks per test
-                                interface,
-                                protocol,
-                                source_ip,
-                                icmp_type,
-                                test_data
-                                icmp_code,
-                                destination_ip,
-                                expected_result
-                            }
-                        ]
-                        '''
-
-                        if command['list'] == True:
-
-                            for cmd_index, cmd in enumerate(command['commands']):
-
-                                if ip_information['source']['result'] != False and ip_information['destinations'][cmd_index]['result'] != False:
-
-                                    self.testset.append({
-                                        'test_record': index,
-                                        'interface': interface,
-                                        'protocol': test_data['protocol'],
-                                        'source_ip': ip_information['source']['ip_address'],
-                                        'source_port': test_data['source_port'] if test_data['source_port'] is not None else '',
-                                        'icmp_type': test_data['icmp_type'] if test_data['icmp_type'] is not None else '',
-                                        'icmp_code': test_data['icmp_code'] if test_data['icmp_code'] is not None else '',
-                                        'destination_ip': ip_information['destinations'][cmd_index],
-                                        'destination_port': test_data['destination_port'] if test_data['destination_port'] is not None else '',
-                                        'expected_result': action,
-                                        'execute': True,
-                                        'command': cmd,
-                                        'action': action
-                                    })
-                                    # logger.debug('Test record "{}" for interface "{}" stored for execution'.format(
-                                    #     index, interface))
-
-                                else:
-                                    self.testset.append({
-                                        'test_record': index,
-                                        'interface': interface,
-                                        'protocol': test_data['protocol'],
-                                        'source_ip': ip_information['source']['ip_address'],
-                                        'source_port': test_data['source_port'] if test_data['source_port'] is not None else '',
-                                        'icmp_type': test_data['icmp_type'] if test_data['icmp_type'] is not None else '',
-                                        'icmp_code': test_data['icmp_code'] if test_data['icmp_code'] is not None else '',
-                                        'destination_ip': ip_information['destinations'][cmd_index],
-                                        'destination_port': test_data['destination_port'] if test_data['destination_port'] is not None else '',
-                                        'expected_result': action,
-                                        'execute': False,
-                                        'command': '',
-                                        'action': action
-                                    })
-
-                                    # logger.debug('Test record "{}" for interface "{}" marked to be skipped due to invalid addresses detection'.format(
-                                    #     index, interface))
-
-                        if command['list'] == False:
-
-                            if ip_information['source']['result'] != False and ip_information['destination']['result'] != False:
-
-                                self.testset.append({
-                                    'test_record': index,
-                                    'interface': interface,
-                                    'protocol': test_data['protocol'],
-                                    'source_ip': ip_information['source']['ip_address'],
-                                    'source_port': test_data['source_port'] if test_data['source_port'] is not None else '',
-                                    'icmp_type': test_data['icmp_type'] if test_data['icmp_type'] is not None else '',
-                                    'icmp_code': test_data['icmp_code'] if test_data['icmp_code'] is not None else '',
-                                    'destination_ip': ip_information['destination']['ip_address'],
-                                    'destination_port': test_data['destination_port'] if test_data['destination_port'] is not None else '',
-                                    'expected_result': action,
-                                    'execute': True,
-                                    'command': command['command'],
-                                    'action': action
-                                })
-                                # logger.debug('Test record "{}" for interface "{}" stored for execution\n'.format(
-                                #     index, interface))
-
-                            else:
-                                self.testset.append({
-                                    'test_record': index,
-                                    'interface': interface,
-                                    'protocol': test_data['protocol'],
-                                    'source_ip': ip_information['source']['ip_address'],
-                                    'source_port': test_data['source_port'] if test_data['source_port'] is not None else '',
-                                    'icmp_type': test_data['icmp_type'] if test_data['icmp_type'] is not None else '',
-                                    'icmp_code': test_data['icmp_code'] if test_data['icmp_code'] is not None else '',
-                                    'destination_ip': ip_information['destination']['ip_address'],
-                                    'destination_port': test_data['destination_port'] if test_data['destination_port'] is not None else '',
-                                    'expected_result': action,
-                                    'execute': False,
-                                    'command': '',
-                                    'action': action
-                                })
-
-                                # logger.debug('Test record "{}" for interface "{}" marked to be skipped due to invalid addresses detection\n'.format(
-                                #     index, interface))
+                self._construct_testlet(index, 
+                    interface, ip_information, port_information, test_data)
 
         return self.testset
 
@@ -314,13 +398,19 @@ class TestControl(object):
         Called after the contruct methods
         '''
 
+        # first setup each dictionary for expected_result
+        for test_data in testset:
+            self.jinja2_results[test_data['interface']]['should_{}'.format(
+                test_data['expected_result'])] = []
+
         for index, test_data in enumerate(testset):
 
             # process only tasks flagged for execution (True)
             # items flagged as False could not have IP Addresses resolved
             if test_data['execute'] == True:
 
-                logger.info('Excuting interface {} test record, "{}"'.format(test_data['interface'], test_data['test_record']))
+                logger.info('Excuting interface {}'.format(
+                    test_data['interface']))
                 logger.info('Command: {}'.format(test_data['command']))
 
                 cli_output = connect.send_command(test_data['command'])
@@ -331,14 +421,14 @@ class TestControl(object):
                 logger.info('Expecting: {}'.format(
                     test_data['expected_result']))
                 logger.info('ASA reports: {}'.format(
-                    test_results['action']))
+                    test_results['asa_action']))
 
-                # if NAT is reported log to terminal
-                if test_results['nat_rule'] is not None:
-                    logger.debug('NAT detected: {} to {}'.format(
-                        test_results['nat_from'], test_results['nat_to']))
-                    logger.debug('NAT rule: "{}"'.format(
-                        test_results['nat_rule']))
+                # # if NAT is reported log to terminal
+                # if test_results['nat_rule'] is not None:
+                #     logger.debug('NAT detected: {} to {}'.format(
+                #         test_results['nat_from'], test_results['nat_to']))
+                #     logger.debug('NAT rule: "{}"'.format(
+                #         test_results['nat_rule']))
 
                 # log to terminal the drop reason if it exists
                 if test_results['drop_reason'] is not None:
@@ -346,77 +436,119 @@ class TestControl(object):
                         test_results['drop_reason']))
 
                 # log to terminal the test result
-                if test_results['action'] == test_data['action']:
+                if test_results['asa_action'] == test_data['expected_result']:
                     logger.info('Test passed!\n')
                     grade = '[PASS]'
                 else:
                     logger.error('Test failed!\n')
                     grade = '[FAIL]'
 
-                '''
-                Store the test results
-                '[{
-                    command,
-                    interface,
-                    protocol,
-                    source_ip,
-                    source_port,
-                    icmp_type,
-                    icmp_code,
-                    destination_ip,
-                    destination_port,
-                    action,
-                    expected_result,
-                    drop_reason,
-                    nat_from,
-                    nat_to,
-                    nat_rule,
-                    grade
-                }]
-                '''
-
-                self.test_results.append({
+                self.jinja2_results[test_data['interface']]['should_{}'.format(test_data['expected_result'])].append({
                     'command': test_data['command'],
+                    'index': test_data['index'],
                     'interface': test_data['interface'],
                     'protocol': test_data['protocol'],
                     'source_ip': test_data['source_ip'],
                     'source_port': test_data['source_port'] if test_data['source_port'] is not None else '',
-                    'icmp_type': test_data['icmp_type'] if test_data['icmp_type'] is not None else '',
-                    'icmp_code': test_data['icmp_code'] if test_data['icmp_code'] is not None else '',
+                    'icmp_type': test_data['icmp_type'] if isinstance(test_data['icmp_type'], int) else '',
+                    'icmp_code': test_data['icmp_code'] if isinstance(test_data['icmp_code'], int) else '',
                     'destination_ip': test_data['destination_ip'],
                     'destination_port': test_data['destination_port'] if test_data['destination_port'] is not None else '',
-                    'action': test_results['action'] if test_results['action'] is not None else '',
-                    'expected_result': test_data['action'],
+                    'expected_result': test_data['expected_result'],
+                    'asa_action': test_results['asa_action'] if test_results['asa_action'] is not None else '',
                     'drop_reason': test_results['drop_reason'] if test_results['drop_reason'] is not None else '',
                     'nat_from': test_results['nat_from'] if test_results['nat_from'] is not None else '',
                     'nat_to': test_results['nat_to'] if test_results['nat_to'] is not None else '',
                     'nat_rule': test_results['nat_rule'] if test_results['nat_rule'] is not None else '',
+                    'yaml_row': self.yaml_row,
                     'grade': grade
                 })
             else:
-                self.test_results.append({
+                self.jinja2_results[test_data['interface']]['should_{}'.format(test_data['expected_result'])].append({
                     'command': test_data['command'],
+                    'index': test_data['index'],
                     'interface': test_data['interface'],
                     'protocol': test_data['protocol'],
                     'source_ip': test_data['source_ip'],
                     'source_port': test_data['source_port'] if test_data['source_port'] is not None else '',
-                    'icmp_type': test_data['icmp_type'] if test_data['icmp_type'] is not None else '',
-                    'icmp_code': test_data['icmp_code'] if test_data['icmp_code'] is not None else '',
+                    'icmp_type': test_data['icmp_type'] if isinstance(test_data['icmp_type'], int) else '',
+                    'icmp_code': test_data['icmp_code'] if isinstance(test_data['icmp_code'], int) else '',
                     'destination_ip': test_data['destination_ip'],
                     'destination_port': test_data['destination_port'] if test_data['destination_port'] is not None else '',
-                    'action': '',
-                    'expected_result': test_data['action'],
+                    'expected_result': test_data['expected_result'],
+                    'asa_action': '',
                     'drop_reason': '',
                     'nat_from': '',
                     'nat_to': '',
                     'nat_rule': '',
+                    'yaml_row': self.yaml_row,
                     'grade': '[SKIP]'
                 })
                 logger.error('Skipping test record "{}" for interface "{}", invalid addresses detected\n'.format(
                     index, test_data['interface']))
 
-        # append the loops test results to the jinja2 dictionary and return jinja2 dictionary to main.
-        self.jinja2_results[test_data['interface']]['should_{}'.format(
-            test_data['action'])] = self.test_results
+        # # append the loops test results to the jinja2 dictionary and return jinja2 dictionary to main.
+        # self.jinja2_results[test_data['interface']]['should_{}'.format(
+        #     test_data['expected_result'])] = self.test_results
 
+        # Look for failed tests, call method to generate retry.yml if found
+        if RecursiveSearch(self.jinja2_results, 'grade', 'FAIL'):
+            logger.debug('tests/retry.yml generated for failed items reruns')
+            self._retry_tests()
+
+        # return the results for report processing
         return self.jinja2_results
+
+    def _delete_retry(self):
+        import os
+
+        try:
+            os.unlink('{}/tests/retry.yml'.format(self.script_dir))
+        except Exception:
+            logger.info('tests/retry.yml missing, moving on')
+            pass
+
+    def _retry_tests(self):
+        '''
+        Parses self.jinja2_results and extracts failed tests.
+        Generates tests/retry.yml
+        '''
+
+        import yaml
+
+        # setup the retry dictionary
+        testset = {}
+
+        # setup the interface dictionarys keys
+        for interface, result in self.jinja2_results.items():
+            testset[interface] = []
+
+        # open the file for appending
+        with open('{}/tests/retry.yml'.format(self.script_dir), 'a') as outfile:
+
+            # iterate through the test results
+            for interface, result in self.jinja2_results.items():
+
+                for item, data in result.items():
+
+                    for item in data:
+
+                        if item['grade'] == '[FAIL]':
+
+                            retry_dict = {
+                                'protocol': item['protocol'],
+                                'icmp_type': item['icmp_type'] if isinstance(item['icmp_type'], int) else '',
+                                'icmp_code': item['icmp_code'] if isinstance(item['icmp_type'], int) else '',
+                                'source_ip': item['source_ip'] if item['source_ip'] else '',
+                                'source_port': item['source_port'] if item['source_port'] else '',
+                                'destination_ip': item['destination_ip'] if item['destination_ip'] else '',
+                                'destination_port': item['destination_port'] if item['destination_port'] else '',
+                                'expected_result': item['expected_result']
+                            }
+
+                            # logger.debug('apending {}'.format(retry_dict))
+
+                            testset[interface].append(retry_dict)
+
+            yaml.dump(testset, outfile, default_flow_style=True)
+            outfile.close()
