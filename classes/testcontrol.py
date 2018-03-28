@@ -541,9 +541,6 @@ class TestControl(object):
         Returns the testset for use un exectute method.
         '''
 
-        # delete any retry file before starting
-        self._delete_retry()
-
         # iterate through the interface dictionary and actions list
         for interface, item in self.context.items():
 
@@ -669,6 +666,9 @@ class TestControl(object):
 
         # Look for failed tests, call method to generate retry.yml if found
         if RecursiveSearch(self.jinja2_results, 'grade', 'FAIL'):
+            # delete any retry file before starting
+            self._delete_retry()
+
             logger.info('tests/retry.yml generated for failed items reruns')
             self._retry_tests()
 
@@ -709,16 +709,16 @@ class TestControl(object):
 
                     for item in data:
 
-                        if item['grade'] == '[FAIL]':
+                        if item['grade'] == '[FAIL]' or item['grade'] == '[SKIP]':
 
                             retry_dict = {
                                 'protocol': item['protocol'],
-                                'icmp_type': item['icmp_type'] if isinstance(item['icmp_type'], int) else '',
-                                'icmp_code': item['icmp_code'] if isinstance(item['icmp_type'], int) else '',
-                                'source_ip': item['source_ip'] if item['source_ip'] else '',
-                                'source_port': item['source_port'] if item['source_port'] else '',
-                                'destination_ip': item['destination_ip'] if item['destination_ip'] else '',
-                                'destination_port': item['destination_port'] if item['destination_port'] else '',
+                                'icmp_type': item['icmp_type'] if isinstance(item['icmp_type'], int) else None,
+                                'icmp_code': item['icmp_code'] if isinstance(item['icmp_type'], int) else None,
+                                'source_ip': item['source_ip'],
+                                'source_port': item['source_port'] if item['source_port'] else None,
+                                'destination_ip': item['destination_ip'],
+                                'destination_port': item['destination_port'] if item['destination_port'] else None,
                                 'expected_result': item['expected_result']
                             }
 
