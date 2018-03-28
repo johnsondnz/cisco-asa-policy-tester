@@ -32,6 +32,8 @@ script_dir = os.path.dirname(os.path.realpath(__file__))
 
 if __name__ == "__main__":
 
+    os.system('cls' if os.name == 'nt' else 'clear')
+
     # capture the passed arguments
     HOST, SSH_PORT, YAML_FILE, USERNAME, PASSWORD, ENABLE_PASSWORD, HOSTFILE = CheckArgs(
         sys.argv[1:])
@@ -58,27 +60,27 @@ if __name__ == "__main__":
         hostfile_status = False
         pass
 
-    try:
-        # store the yaml tests
-        with open('{}/tests/{}'.format(script_dir, YAML_FILE), 'r') as yml:
-            yaml_data = yaml.safe_load(yml)
+    # try:
+    # store the yaml tests
+    with open('{}/tests/{}'.format(script_dir, YAML_FILE), 'r') as yml:
+        yaml_data = yaml.safe_load(yml)
 
-        logger.info('! ---------- CONSTRUCTING TESTS ---------- !\n')
+    logger.info('! ---------- CONSTRUCTING TESTS ---------- !\n')
 
-        test_control = TestControl(
-            script_dir, yaml_data, hostfile_status, hostfile_list)  # call TestControl
-        testset = test_control.construct_testset()   # Build testset
+    test_control = TestControl(
+        script_dir, yaml_data, hostfile_status, hostfile_list)  # call TestControl
+    testset = test_control.construct_testset()   # Build testset
 
-        print('\n')
-        logger.info('! ----------   EXECUTING TESTS  ---------- !\n')
-        logger.info('Attempting connection to {}'.format(device['ip']))
+    print('\n')
+    logger.info('! ----------   EXECUTING TESTS  ---------- !\n')
+    logger.info('Attempting connection to {}'.format(device['ip']))
 
-        connect = ConnectHandler(**device)
-        if connect:
-            results = test_control.execute(testset, connect)
+    connect = ConnectHandler(**device)
+    if connect:
+        results = test_control.execute(testset, connect)
 
-        GenerateReport(results, script_dir, datetime.datetime.now().strftime(
-            "%d/%m/%Y @ %H:%M:%S"))
+    GenerateReport(results, script_dir, datetime.datetime.now().strftime(
+        "%d/%m/%Y @ %H:%M:%S"))
 
-    except Exception:
-        logger.error('{}: {}'.format(sys.exc_info()[0], sys.exc_info()[1:]))
+    # except Exception:
+    #     logger.error('{}: {}'.format(sys.exc_info()[0], sys.exc_info()[1:]))

@@ -57,7 +57,7 @@ class ASAPolicyTest(object):
             output_interface_line_status = line[8] \
                 if line[8] != '' else None
 
-            action = line[9] \
+            asa_action = line[9] \
                 if line[9] != '' else None
 
             drop_reason = line[10] \
@@ -73,7 +73,7 @@ class ASAPolicyTest(object):
                 'output_interface': output_interface,
                 'output_interface_status': output_interface_status,
                 'output_interface_line_status': output_interface_line_status,
-                'action': action,
+                'asa_action': asa_action,
                 'drop_reason': drop_reason
             }
 

@@ -18,10 +18,19 @@ At this time the tool requires a privilege-level 15 user.  It is untested with l
 - jinja2
 - ipaddr
 
-## New to Version 0.5
+## New to Version 0.6 - 28-03-2018
+- Added support for mutli-destination port per test, see YAML examples below.
+- Also supports single destination IP and single destination port.
+- Also supports multiple destination IP with multiple destination port.
+- Supports multiple destinations for ICMP using a single icmp-type and icmp-code.
+- Change to YAML structure, *action*is moved to a leaf called *expected_result*
+- Implemented automated `tests/retry.yml` generation for rerun of failed tests without need to repeat passed tests.
+  - File is deleted with each run.
+- Added on hover tooltip for each row, this shows the viewer which yaml test the row was produced from.
+## New to Version 0.5 - 27-03-2018
 - Added support for mutli-destination IP per test, see YAML examples below.
 
-## New to Version 0.4
+## New to Version 0.4 - 26-03-2018
 - Major Code cleanup for easier management.
 
 ## New to Version 0.3
@@ -34,9 +43,9 @@ At this time the tool requires a privilege-level 15 user.  It is untested with l
 - Fixed issue with ICMP type and code not appearing in report.
 
 ## ToDo
-- Implement a retest.yml file from a test to allow for easy rerun on failed items without the need to retest all items.
 - Test and implement enable password.
 - Implement expected NAT resolution.
+- Use indexed test results to pull correlate to yaml data.  This will enable copy/paste like function to retry.yml
 
 ## Usage
 - `python3 tester.py -i <IP> -u <USERNAME> -p -y <yml_definition> -hf <path/to/hostfile>`
@@ -64,24 +73,26 @@ INSIDE: # One dictionary per interface
 ```
 ---
 INSIDE: # One dictionary per interface
-  allow: # rules you expect to be allowed by the firewall
-   - {
+    - {
         protocol: tcp, 
         icmp_type: , icmp_code: ,
         source_ip: 192.168.1.1, source_port: 12345, 
-        destination_ip: [host1, host2, host3], destination_port: 1443
+        destination_ip: [host1, host2, host3], destination_port: 1443,
+        expected_result: allow
     }
     - {
         protocol: tcp, 
         icmp_type: , icmp_code: ,
         source_ip: 192.168.1.1, source_port: 12345, 
-        destination_ip: 192.168.1.2, destination_port: 1443
+        destination_ip: 192.168.1.2, destination_port: 1443,
+        expected_result: allow
     }
     - {
         protocol: tcp, 
         icmp_type: , icmp_code: ,
         source_ip: 192.168.1.1, source_port: 12345, 
-        destination_ip: 192.168.1.2, destination_port: 137
+        destination_ip: 192.168.1.2, destination_port: 137,
+        expected_result: allow
     }
     - {
         protocol: icmp, 
@@ -90,7 +101,8 @@ INSIDE: # One dictionary per interface
         source_ip: 192.168.1.1,
         source_port: , 
         destination_ip: 192.168.1.2, 
-        destination_port: 
+        destination_port: ,
+        expected_result: allow
     }
     - {
         protocol: tcp, 
@@ -99,10 +111,9 @@ INSIDE: # One dictionary per interface
         source_ip: 192.168.1.1,
         source_port: 12345, 
         destination_ip: 192.168.1.1, 
-        destination_port: 14452
+        destination_port: 14452,
+        expected_result: allow
     }
-
-  drop: # rules you expect to be blocked by the firewall
     - {
         protocol: udp, 
         icmp_type: ,
@@ -110,7 +121,8 @@ INSIDE: # One dictionary per interface
         source_ip: 192.168.1.1,
         source_port: 12345, 
         destination_ip: 192.168.1.2, 
-        destination_port: 14143
+        destination_port: 14143,
+        expected_result: drop
     }
     - {
         protocol: tcp, 
@@ -119,11 +131,11 @@ INSIDE: # One dictionary per interface
         source_ip: 192.168.1.1,
         source_port: 12345, 
         destination_ip: 192.168.1.2, 
-        destination_port: 15632
+        destination_port: 15632,
+        expected_result: drop
     }
 
 OUTSIDE: # One dictionary per interface
-  allow: # rules you expect to be allowed by the firewall
     - {
         protocol: udp, 
         icmp_type: ,
@@ -131,7 +143,8 @@ OUTSIDE: # One dictionary per interface
         source_ip: 192.168.1.1,
         source_port: 12345, 
         destination_ip: 192.168.1.2, 
-        destination_port: 53
+        destination_port: 53,
+        expected_result: allow
     }
     - {
         protocol: tcp, 
@@ -140,15 +153,24 @@ OUTSIDE: # One dictionary per interface
         source_ip: 192.168.1.1,
         source_port: 12345, 
         destination_ip: 192.168.1.2, 
-        destination_port: 53
+        destination_port: 53,
+        expected_result: allow
     }
-
-  drop: # rules you expect to be blocked by the firewall
    - {
         protocol: tcp, 
         icmp_type: , icmp_code: ,
         source_ip: 192.168.1.1, source_port: 12345, 
-        destination_ip: [host1, host2, host3], destination_port: 1443
+        destination_ip: [host1, host2, host3], destination_port: 1443,
+        expected_result: drop
+    }
+    - {
+        protocol: tcp, 
+        icmp_type: ,
+        icmp_code: ,
+        source_ip: 192.168.1.1,
+        source_port: 12345, 
+        destination_ip: 192.16,
+        expected_result: drop
     }
     - {
         protocol: tcp, 
@@ -157,23 +179,15 @@ OUTSIDE: # One dictionary per interface
         source_ip: 192.168.1.1,
         source_port: 12345, 
         destination_ip: 192.168.1.2, 
-        destination_port: 53
-    }
-    - {
-        protocol: tcp, 
-        icmp_type: ,
-        icmp_code: ,
-        source_ip: 192.168.1.1,
-        source_port: 12345, 
-        destination_ip: 192.168.1.2, 
-        destination_port: 8080
+        destination_port: 8080,
+        expected_result: drop
     }
     
 ```
 
 ## Hostfile format
-Currently cause I'm lazy and didn't recode a preprepared file.
-I'll get around to remove the first item 'name' at some point and flip the IP and hostname to be more like a true hostfile
+Currently because I'm lazy and didn't recode a pre-prepared file.
+I'll get around to remove the first item 'name' at some point and flip the IP and hostname to be more like a true hostfile.
 ```
 name 192.168.1.1 device1
 name 192.168.1.2 device2
