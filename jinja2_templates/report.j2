@@ -101,7 +101,9 @@
                                     Nat Rule: {{row.nat_rule}}
                                     {% endif %}
                                     {% if row.grade == '[FAIL]' %}
-                                    Command: {{row.command}}
+                                    Command: {{row.command}}<br />
+                                    Egress Interface: {{row.output_interface}}<br />
+                                    {% if row.output_interface == interface %}sub-optimal routing detected, input interface matches egress interface{% endif %}
                                     {% endif %}
                                     {% if row.grade == '[SKIP]' %}
                                     Unable to resolve named host to IP Address
