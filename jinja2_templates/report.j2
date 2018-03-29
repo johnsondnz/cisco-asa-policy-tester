@@ -94,7 +94,7 @@
                         </tr>
                         {% if addtional_info %}
                         <tr class="{{row_color}}">
-                            <td colspan="12">
+                            <td colspan="12" data-toggle="tooltip" title="{{row.yaml_row}}">
                                 <span style="color:#3d3d3d; font-size: 12px; font-weight: bold;">
                                     {% if row.nat_rule %}
                                     NAT Detected: from {{row.nat_from}} to {{row.nat_to}}<br />
