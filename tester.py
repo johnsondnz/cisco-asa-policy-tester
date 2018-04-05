@@ -33,8 +33,10 @@ if __name__ == "__main__":
     os.system('cls' if os.name == 'nt' else 'clear')
 
     # capture the passed arguments
-    HOST, SSH_PORT, YAML_FILE, USERNAME, PASSWORD, ENABLE_PASSWORD, HOSTFILE = CheckArgs(
+    HOST, SSH_PORT, YAML_FILE, USERNAME, PASSWORD, ENABLE_PASSWORD, HOSTFILE, REPORTNAME = CheckArgs(
         sys.argv[1:])
+
+    reportname = REPORTNAME if REPORTNAME else None
 
     # construct the devi
     device = {
@@ -78,7 +80,7 @@ if __name__ == "__main__":
             results = test_control.execute(testset, connect)
 
         GenerateReport(results, script_dir, datetime.datetime.now().strftime(
-            "%d/%m/%Y @ %H:%M:%S"))
+            "%d/%m/%Y @ %H:%M:%S"), REPORTNAME)
 
     except Exception:
         logger.error('{}: {}'.format(sys.exc_info()[0], sys.exc_info()[1:]))

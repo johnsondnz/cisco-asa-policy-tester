@@ -3,7 +3,7 @@
 ## Description
 This python3 tool will log into a Cisco ASA and perform a series of packet-tracer commands to test a security policy.
 
-The tool will create a report in `reports/html_report.html` which is overwritten with each run.
+The tool will create an bootstrap4 HTML report in `reports/` which is overwritten with each run.
 
 At this time the tool requires a privilege-level 15 user.  It is untested with lower levels or passing into enable mode.
 
@@ -18,6 +18,9 @@ At this time the tool requires a privilege-level 15 user.  It is untested with l
 - getpass3
 - jinja2
 - ipaddr
+
+## New to Verion 0.8 - 06-04-2018
+- Added `-r` flag for defining custom report name.  Omitting this flag results in standard `html_report.html` output.
 
 ## New to Version 0.7 - 29-03-2018
 - Added support for multiple source_ips and combinations with multiple destination_ips and multiple destination_ports.
