@@ -666,8 +666,8 @@ class TestControl(object):
                     'yaml_row': test_data['yaml_row'],
                     'grade': '[SKIP]'
                 })
-                logger.error('Skipping test record "{}" for interface "{}", invalid addresses detected\n'.format(
-                    index, test_data['interface']))
+                logger.error('Skipping test record "{}" for interface "{}", unable to resolve address(es) from this testlet.\n'.format(
+                    test_data['yaml_row'], test_data['interface']))
 
         # # append the loops test results to the jinja2 dictionary and return jinja2 dictionary to main.
         # self.jinja2_results[test_data['interface']]['should_{}'.format(
