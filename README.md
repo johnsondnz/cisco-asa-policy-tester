@@ -8,6 +8,7 @@ The tool will create a report in `reports/html_report.html` which is overwritten
 At this time the tool requires a privilege-level 15 user.  It is untested with lower levels or passing into enable mode.
 
 ## Requirements
+### Pyton Modules
 - netmiko
 - scp>=0.10.0
 - pyyaml
