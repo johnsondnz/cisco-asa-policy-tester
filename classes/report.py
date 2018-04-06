@@ -13,7 +13,6 @@ class GenerateReport(object):
         self.context = context
         self.script_dir = script_dir
         self.generated = generated
-        # self._cleanup()
 
     def gen_report(self):
         for interface, data in self.context.items():
@@ -62,31 +61,3 @@ class GenerateReport(object):
         logger.info('Total passed:   {}'.format(self.context['full_stats']['pass']))
         logger.info('Total failed:   {}'.format(self.context['full_stats']['fail']))
         logger.info('Total skipped:  {}'.format(self.context['full_stats']['skip']))
-
-
-    # def _cleanup(self):
-    #     '''
-    #     Method to remove old reports based on flags
-    #     '''
-
-    #     if self.reportname == 'html_report':
-    #         logger.debug('Cleaning up all previous reports')
-    #         for report in glob(u'*.html'):
-    #             filename = '{}/reports/{}'.format(self.script_dir, report)
-    #             try:
-    #                 if isfile(filename):
-    #                     unlink(filename)
-    #             except Exception:
-    #                 logger.error('Unable to cleanup: {}'.format(filename))
-    #                 pass
-    #     else:
-    #         cleanup = ['html_report.html', '{}.html'.format(self.reportname)]
-
-    #         for report in cleanup:
-    #             filename = '{}/reports/{}'.format(self.script_dir, report)
-    #             try:
-    #                 if isfile(filename):
-    #                     unlink(filename)
-    #             except Exception:
-    #                 logger.error('Unable to cleanup: {}'.format(filename))
-    #                 pass
