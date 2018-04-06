@@ -45,11 +45,11 @@
 
 <body>
     <div class="container-fluid">
-        {% for interface, action in context.items() %}
-        {% if interface != 'full_stats' %}
+        {% for iface, action in context.items() %}
+        {% if iface != 'full_stats' and interface == iface %}
         <div class="row">
             <div class="col-sm-12">
-                <h3>Interface: {{interface}}</h3>
+                <h3>Interface: {{iface}}</h3>
 
                 <div class="col-sm-3">
                     {% for action_type, data in action.items() %}
