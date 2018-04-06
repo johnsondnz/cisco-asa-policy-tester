@@ -20,7 +20,6 @@ At this time the tool requires a privilege-level 15 user.  It is untested with l
 - ipaddr
 
 ## New to Verion 0.8 - 06-04-2018
-- Added `-r` flag for defining custom report name.  Omitting this flag results in standard `html_report.html` output.
 - A report is now generted per interface instead of the full HTML report.
 - Added `full_stats` and `interface_stats` to jinja2_results for overview of results on CLI and HTML reports.
 

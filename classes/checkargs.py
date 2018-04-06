@@ -28,10 +28,6 @@ def CheckArgs(args=None):
     parser.add_argument('-hf', '--hostfile', required=False,
                         help='absolute path to hostfile')
 
-    parser.add_argument('-r', '--reportname', required=False,
-                        help='optional report name flag')
-
-
     results = parser.parse_args(args)
 
     if results.password:
@@ -50,5 +46,4 @@ def CheckArgs(args=None):
         password,
         enable_password,
         results.hostfile,
-        results.reportname,
     )

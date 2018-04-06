@@ -8,12 +8,11 @@ from glob import glob
 
 class GenerateReport(object):
 
-    def __init__(self, context, script_dir, generated, reportname):
+    def __init__(self, context, script_dir, generated):
 
         self.context = context
         self.script_dir = script_dir
         self.generated = generated
-        self.reportname = reportname if reportname != None else 'html_report'
         # self._cleanup()
 
     def gen_report(self):
@@ -37,22 +36,6 @@ class GenerateReport(object):
 
                 logger.info(
                     'HTML report output to "{}"'.format(filename))
-
-        # file_loader=FileSystemLoader(
-        #     '{}/jinja2_templates/'.format(self.script_dir))
-        # env=Environment(loader = file_loader,
-        #                 trim_blocks = True, lstrip_blocks = True)
-
-        # # Render template and print generated config to console
-        # template=env.get_template('report.j2')
-        # filename='{}/reports/{}.html'.format(self.script_dir, self.reportname)
-        # HTML=template.render(context=self.context, generated=self.generated)
-        # with open(filename, 'w') as f:
-        #     f.write(HTML)
-        # f.close()
-
-        # logger.info(
-        #     'HTML report output to "{}"'.format(filename))
 
     def cli_stats(self):
 
