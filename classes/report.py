@@ -30,7 +30,7 @@ class GenerateReport(object):
                 # Render template and print generated config to console
                 template = env.get_template('report.j2')
                 filename = '{}/reports/{}.html'.format(self.script_dir, interface)
-                HTML = template.render(context=self.context, generated=self.generated)
+                HTML = template.render(context=self.context, generated=self.generated, interface=interface)
                 with open(filename, 'w') as f:
                     f.write(HTML)
                 f.close()
