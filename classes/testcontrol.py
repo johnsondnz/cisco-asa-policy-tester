@@ -330,7 +330,7 @@ class TestControl(object):
 
         # ------------------------------------------------------------------------------------------------------------------------- #
         # 0 0 1
-        if multiple_src_ips == False and multiple_dest_ips == False and multiple_dest_ports == True :
+        if multiple_src_ips == False and multiple_dest_ips == False and multiple_dest_ports == True:
 
             # ensure the destinations key is a list
             if isinstance(port_information['destinations'], list):
@@ -356,7 +356,7 @@ class TestControl(object):
                         'execute': execute
                     }
                     self._append_testlet(**testlet)
-        
+
         # ------------------------------------------------------------------------------------------------------------------------- #
         # 0 1 0
         if multiple_src_ips == False and multiple_dest_ips == True and multiple_dest_ports == False:
@@ -385,11 +385,11 @@ class TestControl(object):
                     }
 
                     self._append_testlet(**testlet)
-                    
+
         # ------------------------------------------------------------------------------------------------------------------------- #
         # 0 1 1
         if multiple_src_ips == False and multiple_dest_ips == True and multiple_dest_ports == True:
-            
+
             if isinstance(ip_information['destinations'], list):
 
                 for dest_ip in ip_information['destinations']:
@@ -420,13 +420,14 @@ class TestControl(object):
         # ------------------------------------------------------------------------------------------------------------------------- #
         # 1 0 0
         if multiple_src_ips == True and multiple_dest_ips == False and multiple_dest_ports == False:
-            
+
             if isinstance(ip_information['sources'], list):
 
                 for src_ip in ip_information['sources']:
 
                     # if the source and destination IP are valid flag testlet for executution
-                    execute = True if ip_information['destination']['result'] != False and src_ip['result'] != False else False
+                    execute = True if ip_information['destination'][
+                        'result'] != False and src_ip['result'] != False else False
 
                     testlet = {
                         'index': index,
@@ -447,13 +448,14 @@ class TestControl(object):
         # ------------------------------------------------------------------------------------------------------------------------- #
         # 1 0 1
         if multiple_src_ips == True and multiple_dest_ips == False and multiple_dest_ports == True:
-            
+
             if isinstance(ip_information['sources'], list):
 
                 for src_ip in ip_information['sources']:
 
                     # if the source and destination IP are valid flag testlet for executution
-                    execute = True if ip_information['destination']['result'] != False and src_ip['result'] != False else False
+                    execute = True if ip_information['destination'][
+                        'result'] != False and src_ip['result'] != False else False
 
                     # ensure the destinations key is a list
                     if isinstance(port_information['destinations'], list):
@@ -478,7 +480,7 @@ class TestControl(object):
         # ------------------------------------------------------------------------------------------------------------------------- #
         # 1 1 0
         if multiple_src_ips == True and multiple_dest_ips == True and multiple_dest_ports == False:
-            
+
             if isinstance(ip_information['sources'], list) and isinstance(ip_information['destinations'], list):
 
                 for src_ip in ip_information['sources']:
@@ -506,7 +508,7 @@ class TestControl(object):
         # ------------------------------------------------------------------------------------------------------------------------- #
         # 1 1 1
         if multiple_src_ips == True and multiple_dest_ips == True and multiple_dest_ports == True:
-            
+
             if isinstance(ip_information['sources'], list) and isinstance(ip_information['destinations'], list):
 
                 for src_ip in ip_information['sources']:
@@ -567,8 +569,8 @@ class TestControl(object):
                 ip_information = self._host_lookup(test_data)
                 port_information = self._port_information(test_data)
 
-                self._construct_testlet(index, 
-                    interface, ip_information, port_information, test_data, self.yaml_row)
+                self._construct_testlet(index,
+                                        interface, ip_information, port_information, test_data, self.yaml_row)
 
         return self.testset
 
@@ -578,16 +580,31 @@ class TestControl(object):
         Called after the contruct methods
         '''
 
-        # first setup each dictionary for expected_result
+        # first setup each dictionary for expected_results and interface test_stats
         for test_data in testset:
             self.jinja2_results[test_data['interface']]['should_{}'.format(
                 test_data['expected_result'])] = []
+            self.jinja2_results[test_data['interface']]['interface_stats'] = {}
+            self.jinja2_results[test_data['interface']]['interface_stats']['total'] = 0
+            self.jinja2_results[test_data['interface']]['interface_stats']['skip'] = 0
+            self.jinja2_results[test_data['interface']]['interface_stats']['pass'] = 0
+            self.jinja2_results[test_data['interface']]['interface_stats']['fail'] = 0
+
+        # setup total play teststats dictionary
+        self.jinja2_results['full_stats'] = {}
+        self.jinja2_results['full_stats']['total'] = 0
+        self.jinja2_results['full_stats']['skip'] = 0
+        self.jinja2_results['full_stats']['pass'] = 0
+        self.jinja2_results['full_stats']['fail'] = 0
 
         for index, test_data in enumerate(testset):
 
             # process only tasks flagged for execution (True)
             # items flagged as False could not have IP Addresses resolved
             if test_data['execute'] == True:
+
+                self.jinja2_results['full_stats']['total'] += 1
+                self.jinja2_results[test_data['interface']]['interface_stats']['total'] += 1
 
                 logger.info('Excuting interface {}'.format(
                     test_data['interface']))
@@ -619,9 +636,14 @@ class TestControl(object):
                 if test_results['asa_action'] == test_data['expected_result']:
                     logger.info('Test passed!\n')
                     grade = '[PASS]'
+                    self.jinja2_results['full_stats']['pass'] += 1
+                    self.jinja2_results[test_data['interface']]['interface_stats']['pass'] += 1
+            
                 else:
                     logger.error('Test failed!\n')
                     grade = '[FAIL]'
+                    self.jinja2_results['full_stats']['fail'] += 1
+                    self.jinja2_results[test_data['interface']]['interface_stats']['fail'] += 1
 
                 self.jinja2_results[test_data['interface']]['should_{}'.format(test_data['expected_result'])].append({
                     'command': test_data['command'],
@@ -645,6 +667,8 @@ class TestControl(object):
                     'grade': grade
                 })
             else:
+                self.jinja2_results['full_stats']['skip'] += 1
+                self.jinja2_results[test_data['interface']]['interface_stats']['skip'] += 1
                 self.jinja2_results[test_data['interface']]['should_{}'.format(test_data['expected_result'])].append({
                     'command': test_data['command'],
                     'index': test_data['index'],
@@ -714,26 +738,32 @@ class TestControl(object):
             # iterate through the test results
             for interface, result in self.jinja2_results.items():
 
-                for item, data in result.items():
+                # omit processing full test suite test_stats
+                if interface != 'full_stats':
 
-                    for item in data:
+                    for item, data in result.items():
 
-                        if item['grade'] == '[FAIL]' or item['grade'] == '[SKIP]':
+                        # omit processing interface test_stats
+                        if item != 'interface_stats':
 
-                            retry_dict = {
-                                'protocol': item['protocol'],
-                                'icmp_type': item['icmp_type'] if isinstance(item['icmp_type'], int) else None,
-                                'icmp_code': item['icmp_code'] if isinstance(item['icmp_type'], int) else None,
-                                'source_ip': item['source_ip'],
-                                'source_port': item['source_port'] if item['source_port'] else None,
-                                'destination_ip': item['destination_ip'],
-                                'destination_port': item['destination_port'] if item['destination_port'] else None,
-                                'expected_result': item['expected_result']
-                            }
+                            for item in data:
 
-                            # logger.debug('apending {}'.format(retry_dict))
+                                    if item['grade'] == '[FAIL]' or item['grade'] == '[SKIP]':
 
-                            testset[interface].append(retry_dict)
+                                        retry_dict = {
+                                            'protocol': item['protocol'],
+                                            'icmp_type': item['icmp_type'] if isinstance(item['icmp_type'], int) else None,
+                                            'icmp_code': item['icmp_code'] if isinstance(item['icmp_type'], int) else None,
+                                            'source_ip': item['source_ip'],
+                                            'source_port': item['source_port'] if item['source_port'] else None,
+                                            'destination_ip': item['destination_ip'],
+                                            'destination_port': item['destination_port'] if item['destination_port'] else None,
+                                            'expected_result': item['expected_result']
+                                        }
+
+                                        # logger.debug('apending {}'.format(retry_dict))
+
+                                        testset[interface].append(retry_dict)
 
             yaml.dump(testset, outfile, default_flow_style=True)
             outfile.close()

@@ -45,11 +45,39 @@
 
 <body>
     <div class="container-fluid">
-        {% for interface, action in context.items() %} 
+        {% for interface, action in context.items() %}
+        {% if interface != 'full_stats' %}
         <div class="row">
             <div class="col-sm-12">
                 <h3>Interface: {{interface}}</h3>
+
+                <div class="col-sm-3">
+                    {% for action_type, data in action.items() %}
+                    {% if action_type == 'interface_stats' %}
+                    <table class="table table-sm table-bordered">
+                        <thead>
+                        <tr>
+                                <th>Total Testlets</th>
+                                <th>Passed</th>
+                                <th>Failed</th>
+                                <th>Skipped</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                                <td>{{data.total}}</td>
+                                <td>{{data.pass}}</td>
+                                <td>{{data.fail}}</td>
+                                <td>{{data.skip}}</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                    {% endif %}
+                    {% endfor %}
+                </div>
+
                 {% for action_type, data in action.items() %}
+                {% if action_type != 'interface_stats' %}
                 <h4>Test Type: {{action_type}}</h4>
                 <table class="table table-sm table-bordered">
                     <thead>
@@ -115,9 +143,11 @@
                     </tbody>
                     {% endfor %}
                 </table>
+                {% endif %}
                 {% endfor %}
             </div>
         </div>
+        {% endif %}
         {% endfor %}
     </div>
     </div>

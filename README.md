@@ -21,6 +21,8 @@ At this time the tool requires a privilege-level 15 user.  It is untested with l
 
 ## New to Verion 0.8 - 06-04-2018
 - Added `-r` flag for defining custom report name.  Omitting this flag results in standard `html_report.html` output.
+- A report is now generted per interface in addition to the full HTML report.
+- Added `full_stats` and `interface_stats` to jinja2_results for overview of results on CLI and HTML reports.
 
 ## New to Version 0.7 - 29-03-2018
 - Added support for multiple source_ips and combinations with multiple destination_ips and multiple destination_ports.
@@ -54,6 +56,7 @@ At this time the tool requires a privilege-level 15 user.  It is untested with l
 - Test and implement enable password.
 - Implement expected NAT resolution.
 - Use indexed test results to correlate to yaml data.  This will enable copy/paste like function to retry.yml
+- Add testlet structured_data validation
 
 ## Usage
 - `python3 tester.py -i <IP> -u <USERNAME> -p -y <yml_definition> -hf <path/to/hostfile>`

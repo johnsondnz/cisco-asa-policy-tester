@@ -79,8 +79,10 @@ if __name__ == "__main__":
         if connect:
             results = test_control.execute(testset, connect)
 
-        GenerateReport(results, script_dir, datetime.datetime.now().strftime(
-            "%d/%m/%Y @ %H:%M:%S"), REPORTNAME)
+        report = GenerateReport(results, script_dir, datetime.datetime.now().strftime(
+            "%d/%m/%Y @ %H:%M:%S"), REPORTNAME)  
+        report.gen_report()
+        report.cli_stats()
 
     except Exception:
         logger.error('{}: {}'.format(sys.exc_info()[0], sys.exc_info()[1:]))
