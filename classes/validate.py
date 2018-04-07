@@ -4,6 +4,7 @@ from .resolve import Lookup
 from logzero import logger
 import re
 
+
 class Validate(object):
 
     '''
@@ -30,11 +31,11 @@ class Validate(object):
 
         # register the monitored keys
         self.montored_keys = ['protocol', 'source_ip', 'source_port', 'destination_ip',
-                'destination_port', 'icmp_code', 'icmp_type', 'expected_result']
+                              'destination_port', 'icmp_code', 'icmp_type', 'expected_result']
 
         # load registered protocols
-        self.registered_protocols = ['udp','icmp','tcp','esp']
-        
+        self.registered_protocols = ['udp', 'icmp', 'tcp', 'esp']
+
         # initiate test storage
         self.validation = {}
         self.validation['results'] = ''
@@ -43,7 +44,7 @@ class Validate(object):
         '''
         Loads YAML and check data structures
         Returns a dictionary
-        
+
         {
             results: boolean
             interface: { 
@@ -84,17 +85,21 @@ class Validate(object):
 
             # iterate through the action list
             for index, test_data in enumerate(item):
-                
+
                 # setup testlet validation storage
                 self.validation[interface]['testlets'].append({
                     'testlet_id': index,
                     'yaml': test_data
                 })
                 self.validation[interface]['testlets'][index]['issues'] = {}
-                self.validation[interface]['testlets'][index]['issues']['invalid_keys'] = []
-                self.validation[interface]['testlets'][index]['issues']['missing_keys'] = []
-                self.validation[interface]['testlets'][index]['issues']['invalid_instances'] = []
-                self.validation[interface]['testlets'][index]['issues']['invalid_data'] = []
+                self.validation[interface]['testlets'][index]['issues']['invalid_keys'] = [
+                ]
+                self.validation[interface]['testlets'][index]['issues']['missing_keys'] = [
+                ]
+                self.validation[interface]['testlets'][index]['issues']['invalid_instances'] = [
+                ]
+                self.validation[interface]['testlets'][index]['issues']['invalid_data'] = [
+                ]
 
                 # Check this testlets data
                 unmonitored = self._test_unmonitored_keys(test_data)
@@ -103,11 +108,14 @@ class Validate(object):
                 test_values = self._test_validate_values(test_data)
 
                 # store the testlet validation results
-                self._validation_storage(interface, index,'invalid_keys',unmonitored)
-                self._validation_storage(interface, index,'missing_keys',missing_keys)
-                self._validation_storage(interface, index,'invalid_instances',invalid_instances)
-                self._validation_storage(interface, index,'invalid_data',test_values)
-
+                self._validation_storage(
+                    interface, index, 'invalid_keys', unmonitored)
+                self._validation_storage(
+                    interface, index, 'missing_keys', missing_keys)
+                self._validation_storage(
+                    interface, index, 'invalid_instances', invalid_instances)
+                self._validation_storage(
+                    interface, index, 'invalid_data', test_values)
 
                 # set the final grade
                 self._confirm_results()
@@ -118,7 +126,6 @@ class Validate(object):
                 self._raise_exception()
 
     def _test_validate_keys_exist(self, testlet_data):
-
         '''
         Checks that all the keys are registed for the testlet
         {
@@ -143,9 +150,8 @@ class Validate(object):
             else:
                 # Only set 'results' key to True if it is not already False
                 results['result'] = True if results['result'] != False else True
-        
-        return results
 
+        return results
 
     def _test_unmonitored_keys(self, testlet_data):
         '''
@@ -175,8 +181,6 @@ class Validate(object):
 
         return results
 
-
-
     def _test_validate_instances(self, testlet_data):
         '''
         Check the key value is the correct instance type and contains a value or any type
@@ -188,14 +192,13 @@ class Validate(object):
         '''
 
         def _instance_types(key, value, key_list):
-
             '''
             Takes the expected key_list and valdaites that it is of the correct type
             Returns a simple True/False
             '''
 
             strings_or_lists = ['source_ip', 'source_port',
-                            'destination_ip', 'destination_port']
+                                'destination_ip', 'destination_port']
             string_or_integers = ['protocol']
             strings = ['expected_result']
             integers = ['icmp_type', 'icmp_code']
@@ -221,7 +224,7 @@ class Validate(object):
             if key in string_or_integers and key in key_list:
                 result = True if isinstance(key, str) or isinstance(
                     key, int) and value is not None else False
-            
+
             return result
 
         results = {}
@@ -234,34 +237,35 @@ class Validate(object):
             key = tp[0]
             value = tp[1]
 
-            logger.debug('{} = {}'.format(key,value))
+            logger.debug('{} = {}'.format(key, value))
 
             if key == 'protocol' and value.lower() == 'icmp':
 
                 result = _instance_types(
                     key, value,
-                    ['protocol', 'expected_result', 'icmp_type', 'icmp_code', 'source_ip', 'destination_ip']
+                    ['protocol', 'expected_result', 'icmp_type',
+                        'icmp_code', 'source_ip', 'destination_ip']
                 )
-            
+
             elif key == 'protocol' and re.match(r'(udp|tcp|esp)', str(value.lower())):
 
                 result = _instance_types(
                     key, value,
-                    ['protocol', 'expected_result', 'source_ip', 'source_port', 'destination_ip', 'destination_port']
+                    ['protocol', 'expected_result', 'source_ip',
+                        'source_port', 'destination_ip', 'destination_port']
                 )
 
             if result == False:
                 results['result'] = False
-                results['errored_keys'].append((key,value)) # append key,value tuple pair to the list
+                # append key,value tuple pair to the list
+                results['errored_keys'].append((key, value))
             else:
                 # Only set 'results' key to True if it is not already False
                 results['result'] = True if results['result'] != False else True
-        
+
         return results
 
-
     def _test_validate_values(self, testlet_data):
-
         '''
         Check the provided value is a valid type for the key
         ports between 0:65535
@@ -275,14 +279,15 @@ class Validate(object):
         }
         '''
 
-        def _set_result(key,value):
+        def _set_result(key, value):
             '''set results, cause I'm lazy'''
             results['result'] = False
-            results['errored_keys'].append((key,value)) # append key,value tuple pair to the list
+            # append key,value tuple pair to the list
+            results['errored_keys'].append((key, value))
 
         results = {}
         results['result'] = True
-        results['errored_keys'] = []     
+        results['errored_keys'] = []
 
         for tp in testlet_data.items():
             key = tp[0]
@@ -294,62 +299,61 @@ class Validate(object):
                     # Only set 'results' key to True if it is not already False
                     results['result'] = True if results['result'] != False else True
                 else:
-                    _set_result(key,value)
-            
+                    _set_result(key, value)
+
             if key == 'expected_result':
                 if re.match(r'(drop|allow)', str(value.lower())):
                     # Only set 'results' key to True if it is not already False
                     results['result'] = True if results['result'] != False else True
                 else:
-                    _set_result(key,value)
-            
+                    _set_result(key, value)
+
             if re.match(r'(icmp_type|icmp_code)', str(key.lower())):
                 if value >= 0 and value <= 254:
                     # Only set 'results' key to True if it is not already False
                     results['result'] = True if results['result'] != False else True
                 else:
-                    _set_result(key,value)
+                    _set_result(key, value)
 
             # process ports which could be a str or a list
-            if re.match(r'(source_port|destination_port)', str(key.lower())) and isinstance(key,str):
+            if re.match(r'(source_port|destination_port)', str(key.lower())) and isinstance(key, str):
                 if value >= 0 and value <= 65535:
                     # Only set 'results' key to True if it is not already False
                     results['result'] = True if results['result'] != False else True
                 else:
-                    _set_result(key,value)
-            elif re.match(r'(source_port|destination_port)', str(key.lower())) and isinstance(key,list):
+                    _set_result(key, value)
+            elif re.match(r'(source_port|destination_port)', str(key.lower())) and isinstance(key, list):
                 for port in value:
                     if port >= 0 and port <= 65535:
                         # Only set 'results' key to True if it is not already False
                         results['result'] = True if results['result'] != False else True
                     else:
-                        _set_result(key,port)
+                        _set_result(key, port)
 
             # process ip_addresses which could be a str or a list
-            if re.match(r'(source_ip|destination_ip)', str(key.lower())) and isinstance(key,str):
-                ip_lookup = Lookup(value, self.hostfile_status, self.hostfile_list)
+            if re.match(r'(source_ip|destination_ip)', str(key.lower())) and isinstance(key, str):
+                ip_lookup = Lookup(
+                    value, self.hostfile_status, self.hostfile_list)
                 ip_address = ip_lookup.get_ip()
                 if ip_address['result'] == True:
                     # Only set 'results' key to True if it is not already False
                     results['result'] = True if results['result'] != False else True
                 else:
-                    _set_result(key,value)
-            elif re.match(r'(source_ip|destination_ip)', str(key.lower())) and isinstance(key,list):
+                    _set_result(key, value)
+            elif re.match(r'(source_ip|destination_ip)', str(key.lower())) and isinstance(key, list):
                 for ip in value:
-                    ip_lookup = Lookup(ip, self.hostfile_status, self.hostfile_list)
+                    ip_lookup = Lookup(
+                        ip, self.hostfile_status, self.hostfile_list)
                     ip_address = ip_lookup.get_ip()
                     if ip_address['result'] == True:
                         # Only set 'results' key to True if it is not already False
                         results['result'] = True if results['result'] != False else True
                     else:
-                        _set_result(key,value)
-
+                        _set_result(key, value)
 
         return results
 
-
     def _validation_storage(self, interface, index, storage, testlet_data):
-
         '''
         Runs the test.
         index is the list number for this testlet
@@ -365,14 +369,13 @@ class Validate(object):
 
         if testlet_data['result'] == False:
             self.validation[interface]['testlets'][index]['result'] = False
-            self.validation[interface]['testlets'][index]['issues'][storage].append(testlet_data['errored_keys'])
+            self.validation[interface]['testlets'][index]['issues'][storage].append(
+                testlet_data['errored_keys'])
             self.validation[interface]['testlets'][index]['yaml'] = testlet_data
         else:
             self.validation[interface]['testlets'][index]['result'] = True
 
-
     def _raise_exception(self):
-
         '''
         Raises an exception if any of the tests fail.
         Loops through the entire self.validation dictionary and provides a report
@@ -393,20 +396,22 @@ class Validate(object):
 
                         logger.error('Something went wring with: Interface: {}, testlet_id: {}'.format(
                             interface, testlet_validation_data['testlet_id']))
-                        logger.error('YAML: {}'.format(testlet_validation_data['yaml']))
-                        logger.error('{}'.format(testlet_validation_data['issues']))
+                        logger.error('YAML: {}'.format(
+                            testlet_validation_data['yaml']))
+                        logger.error('{}'.format(
+                            testlet_validation_data['issues']))
                         logger.error
 
             # raise th ValueError at the conclusion of the looping
-            raise ValueError('Check YAML data for above testlets, fix and rerun.')
-            
-    
-    def _confirm_results(self):
+            raise ValueError(
+                'Check YAML data for above testlets, fix and rerun.')
 
+    def _confirm_results(self):
         '''
         Iterates through self.validation data and determine overall pass/fail grade
         '''
 
         # search self.validation for any key,value pair for result = False
         # if found set self.validation['results'] = False
-        self.validation['results'] = False if RecursiveSearch(self.validation, 'result', False) == True else False
+        self.validation['results'] = False if RecursiveSearch(
+            self.validation, 'result', False) == True else False
