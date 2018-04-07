@@ -19,7 +19,7 @@ import yaml
 import re
 import datetime
 from netmiko import ConnectHandler
-from logzero import logger
+from logzero import logger, setup_default_logger, logging
 
 from classes.report import GenerateReport
 from classes.resolve import Resolve
@@ -33,8 +33,14 @@ if __name__ == "__main__":
     os.system('cls' if os.name == 'nt' else 'clear')
 
     # capture the passed arguments
-    HOST, SSH_PORT, YAML_FILE, USERNAME, PASSWORD, ENABLE_PASSWORD, HOSTFILE = CheckArgs(
+    HOST, SSH_PORT, YAML_FILE, USERNAME, PASSWORD, ENABLE_PASSWORD, HOSTFILE, DEBUG = CheckArgs(
         sys.argv[1:])
+
+    if DEBUG:
+        setup_default_logger(level=logging.DEBUG)
+    else:
+        setup_default_logger(level=logging.INFO)
+    
 
     # construct the devi
     device = {
@@ -54,7 +60,7 @@ if __name__ == "__main__":
         logger.info('Hostfile "{}" found and loaded'.format(HOSTFILE))
         hostfile_status = True
     except Exception:
-        logger.error('Hostfile not loaded')
+        logger.error('Hostfile could not be loaded')
         hostfile_status = False
         pass
 

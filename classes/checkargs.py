@@ -28,6 +28,9 @@ def CheckArgs(args=None):
     parser.add_argument('-hf', '--hostfile', required=False,
                         help='absolute path to hostfile')
 
+    parser.add_argument('-vvv', '--debug', required=False, action='store_true',
+                        help='Debug logging level')
+
     results = parser.parse_args(args)
 
     if results.password:
@@ -46,4 +49,5 @@ def CheckArgs(args=None):
         password,
         enable_password,
         results.hostfile,
+        results.debug
     )

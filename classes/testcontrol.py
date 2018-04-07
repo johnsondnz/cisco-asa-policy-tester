@@ -19,7 +19,7 @@ class TestControl(object):
         '''
 
         self.context = context
-        # logger.debug('Context data loaded')
+        logger.debug('Context data loaded')
 
         # initiate the test list for later execution.
         # all tests are stored against this list.
@@ -37,7 +37,7 @@ class TestControl(object):
         # add this to the jinja2_results dictionary
         for interface, test_item in self.context.items():
             self.jinja2_results[interface] = {}
-            # logger.debug('Dictionary for "{}" created.'.format(interface))
+            logger.debug('Dictionary for "{}" created.'.format(interface))
 
         # grab the hostfile information
         self.hostfile_status = hostfile_status
@@ -53,7 +53,7 @@ class TestControl(object):
 
         if isinstance(test_data['source_ip'], list) and isinstance(test_data['destination_ip'], str):
 
-            # logger.debug('List detect in destination_ip')
+            logger.debug('List detect in destination_ip')
 
             # setup the dict and list
             ip_information = {}
@@ -75,7 +75,7 @@ class TestControl(object):
 
         if isinstance(test_data['destination_ip'], list) and isinstance(test_data['source_ip'], str):
 
-            # logger.debug('List detect in destination_ip')
+            logger.debug('List detect in destination_ip')
 
             # setup the dict and list
             ip_information = {}
@@ -97,7 +97,7 @@ class TestControl(object):
 
         if isinstance(test_data['source_ip'], list) and isinstance(test_data['destination_ip'], list):
 
-            # logger.debug('List detect in destination_ip')
+            logger.debug('List detect in destination_ip')
 
             # setup the dict and list
             ip_information = {}
@@ -148,7 +148,7 @@ class TestControl(object):
 
         if isinstance(test_data['source_port'], list):
 
-            # logger.debug('List detect in source_port')
+            logger.debug('List detect in source_port')
 
             # setup the ports list
             port_information['sources'] = []
@@ -166,7 +166,7 @@ class TestControl(object):
 
         if isinstance(test_data['destination_port'], list):
 
-            # logger.debug('List detect in destination_port')
+            logger.debug('List detect in destination_port')
 
             # setup the ports list
             port_information['destinations'] = []
@@ -185,7 +185,7 @@ class TestControl(object):
         # now check for integer/string fields
         if isinstance(test_data['source_port'], str) or isinstance(test_data['source_port'], int):
 
-            # logger.debug('String or integer detect in source_port')
+            logger.debug('String or integer detect in source_port')
 
             # validate that the ports lies within the range 0-65535
             if test_data['source_port'] <= 65535 and test_data['source_port'] >= 0:
@@ -197,7 +197,7 @@ class TestControl(object):
 
         if isinstance(test_data['destination_port'], str) or isinstance(test_data['destination_port'], int):
 
-            # logger.debug('String or integer detect in destination_port')
+            logger.debug('String or integer detect in destination_port')
 
             # validate that the ports lies within the range 0-65535
             if test_data['destination_port'] <= 65535 and test_data['destination_port'] >= 0:
@@ -214,13 +214,13 @@ class TestControl(object):
         Takes a single testlet and appends it to the testset
         '''
 
-        # logger.debug('-------- RECEIVED DATA -----------')
+        logger.debug('-------- RECEIVED DATA -----------')
         # for k, v, in kwargs.items():
         #     logger.debug('{}: {}'.format(k,v))
 
         if re.match(r'(udp|tcp)', str(kwargs.get('protocol').lower())):
 
-            # logger.debug('Processing {} data'.format(kwargs.get('protocol').lower()))
+            logger.debug('Processing {} data'.format(kwargs.get('protocol').lower()))
 
             command = 'packet-tracer input {} {} {} {} {} {} detail'.format(
                 kwargs.get('interface'),
@@ -233,7 +233,7 @@ class TestControl(object):
 
         elif 'icmp' in str(kwargs.get('protocol').lower()):
 
-            # logger.debug('Processing {} data'.format(kwargs.get('protocol').lower()))
+            logger.debug('Processing {} data'.format(kwargs.get('protocol').lower()))
 
             command = 'packet-tracer input {} {} {} {} {} {} detail'.format(
                 kwargs.get('interface'),
@@ -251,8 +251,8 @@ class TestControl(object):
                 kwargs.get('destination_ip')
             )
 
-        # logger.debug('-------- APPENDED DATA -----------')
-        # logger.debug({
+        logger.debug('-------- APPENDED DATA -----------')
+        logger.debug({
         #     'interface': kwargs.get('interface'),
         #     'protocol': kwargs.get('protocol'),
         #     'source_ip': kwargs.get('source_ip'),
@@ -296,9 +296,9 @@ class TestControl(object):
         multiple_dest_ports = True if RecursiveSearch(
             port_information, 'destinations') else False
 
-        # logger.debug('Multiples: {} {} {}'.format(multiple_src_ips,multiple_dest_ips,multiple_dest_ports))
+        logger.debug('Multiples: {} {} {}'.format(multiple_src_ips,multiple_dest_ips,multiple_dest_ports))
 
-        # logger.debug('-------- TEST DATA -----------')
+        logger.debug('-------- TEST DATA -----------')
         # for k,v in test_data.items():
         #     logger.debug('{}: {}'.format(k,v))
 
@@ -556,7 +556,7 @@ class TestControl(object):
             # iterate through the action list
             for index, test_data in enumerate(item):
 
-                # logger.debug('Processing test item {}'.format(index))
+                logger.debug('Processing test item {}'.format(index))
 
                 # will use this later for a HTML5/Bootstrap on-hover tooltip.
                 # Sent to self.jinja2_results later
@@ -564,7 +564,7 @@ class TestControl(object):
                 # Not the processed information post name resolution etc.
                 self.yaml_row = test_data
 
-                # logger.debug('item {} data: {}'.format(index,self.yaml_row))
+                logger.debug('item {} data: {}'.format(index,self.yaml_row))
 
                 ip_information = self._host_lookup(test_data)
                 port_information = self._port_information(test_data)
@@ -690,7 +690,7 @@ class TestControl(object):
                     'yaml_row': test_data['yaml_row'],
                     'grade': '[SKIP]'
                 })
-                logger.error('Skipping test record "{}" for interface "{}", unable to resolve address(es) from this testlet.\n'.format(
+                logger.error('Skipping ttestlet "{}" for interface "{}", unable to resolve address(es) from this testlet.\n'.format(
                     test_data['yaml_row'], test_data['interface']))
 
         # # append the loops test results to the jinja2 dictionary and return jinja2 dictionary to main.
@@ -761,7 +761,7 @@ class TestControl(object):
                                             'expected_result': item['expected_result']
                                         }
 
-                                        # logger.debug('apending {}'.format(retry_dict))
+                                        logger.debug('apending {}'.format(retry_dict))
 
                                         testset[interface].append(retry_dict)
 

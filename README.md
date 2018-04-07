@@ -19,6 +19,14 @@ At this time the tool requires a privilege-level 15 user.  It is untested with l
 - jinja2
 - ipaddr
 
+## New to Version 0.9 - 07-04-2018
+- Added testlet data validation.
+  - Current validation requires that all keys be present, for example, icmp_type and icmp_code need to be present for udp, tcp and esp tests, just set to None.
+  - Same goes for ICMP test, source_port and destination_port must be present.
+  - Any values that aren't required are ignored, recommendation is that they be set to None (or left blank) for human readability.
+- Added `-vvv` flag for logzero.logging to be set to DEBUG, default is INFO.
+- Switched many of the logging outputs to DEBUG level.
+
 ## New to Verion 0.8 - 06-04-2018
 - A report is now generted per interface instead of the full HTML report.
 - Added `full_stats` and `interface_stats` to jinja2_results for overview of results on CLI and HTML reports.
@@ -55,7 +63,7 @@ At this time the tool requires a privilege-level 15 user.  It is untested with l
 - Test and implement enable password.
 - Implement expected NAT resolution.
 - Use indexed test results to correlate to yaml data.  This will enable copy/paste like function to retry.yml
-- Add testlet structured_data validation
+- Allow for missing registered keys when the keys are not required for the testlet.
 
 ## Usage
 - `python3 tester.py -i <IP> -u <USERNAME> -p -y <yml_definition> -hf <path/to/hostfile>`
@@ -73,8 +81,8 @@ INSIDE: # One dictionary per interface
     - {
         protocol: tcp, 
         icmp_type: , icmp_code: ,
-        source_ip: 192.168.1.1, source_port: 12345, 
-        destination_ip: [host1, host2, host3], destination_port: 1443
+        source_ip: [server1, server2, server3], source_port: [80, 8080], 
+        destination_ip: [host1, host2, host3], destination_port: [443,8443],
         expected_result: allow
     }
 ```

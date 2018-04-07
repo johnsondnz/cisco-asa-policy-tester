@@ -31,14 +31,14 @@ class Resolve(object):
                 b_elembers = lookup_line.split(' ')
                 object_ip = b_elembers[1]
                 object_ip_found = True
-                logger.info('Found: {}, on line {}'.format(
+                logger.debug('Found: {}, on line {}'.format(
                     lookup_line, index + 1))
                 break
             else:
                 object_ip_found = False
 
         if object_ip_found:
-            logger.info('Object: {}, IP: {}'.format(host, object_ip))
+            logger.debug('Object: {}, IP: {}'.format(host, object_ip))
             return { 'lookup': 'success', 'ip_address': object_ip, 'lookup_type': 'hostfile' }
         else:
             logger.error('Object: {}, IP: not found'.format(host))
@@ -58,11 +58,11 @@ class Resolve(object):
 
         try:
             resolved_address = gethostbyname(host)
-            logger.info(
+            logger.debug(
                 'DNS resovled object "{}" to "{}"'.format(host, resolved_address))
             return { 'lookup': 'success', 'ip_address': resolved_address, 'lookup_type': 'dns' }
         except Exception:
-            logger.info(
+            logger.error(
                 'DNS resolution failed for object "{}"'.format(host))
             return { 'lookup': 'failed', 'ip_address': host, 'lookup_type': 'dns' }
             
@@ -85,7 +85,7 @@ class Lookup(object):
 
         try:
             ip_address = validate_address if IPAddress(validate_address) else False
-            logger.info(
+            logger.debug(
                 'Source IP "{}" is a valid IP, further resolution not required\n'.format(validate_address))
             return { 'result': True, 'ip_address': ip_address }
         except ValueError:
@@ -113,7 +113,7 @@ class Lookup(object):
 
             # check the loaded hostfile, if it is loaded, if no hostfile fallback to dns
             if self.hostfile_status == True and self.hostfile_list != None:
-                logger.info('Looking up "{}" in hostfile'.format(self.validate_address))
+                logger.debug('Looking up "{}" in hostfile'.format(self.validate_address))
                 results = resolv.hostfile_lookup(self.validate_address, self.hostfile_list)
 
             # check results
@@ -121,7 +121,7 @@ class Lookup(object):
                 pass
             else:
                 # fallback to dns
-                logger.info('Attemping to resolve "{}" via DNS'.format(self.validate_address))
+                logger.debug('Attemping to resolve "{}" via DNS'.format(self.validate_address))
                 results = resolv.dns(self.validate_address)
 
         # validate the address one more time before passing back
