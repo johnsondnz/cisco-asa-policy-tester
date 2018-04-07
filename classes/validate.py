@@ -313,8 +313,13 @@ class Validate(object):
         logger.debug('Stepped into _test_validate_values')
         logger.debug('Asserting key values are as per definition')
 
-        def _set_result(key, value):
-            '''set results, cause I'm lazy'''
+        def _set_validate_values_results(key, value):
+            '''
+            Sets the testlet value results, re-use the code!!
+            '''
+
+            logger.debug('Stepped into _set_validate_values_results')
+
             results['result'] = False
             # append key,value tuple pair to the list
             results['errored_keys'].append((key, value))
@@ -333,21 +338,21 @@ class Validate(object):
                     # Only set 'results' key to True if it is not already False
                     results['result'] = True if results['result'] != False else True
                 else:
-                    _set_result(key, value)
+                    _set_validate_values_results(key, value)
 
             if key == 'expected_result':
                 if re.match(r'(drop|allow)', str(value.lower())):
                     # Only set 'results' key to True if it is not already False
                     results['result'] = True if results['result'] != False else True
                 else:
-                    _set_result(key, value)
+                    _set_validate_values_results(key, value)
 
             if re.match(r'(icmp_type|icmp_code)', str(key.lower())):
                 if value >= 0 and value <= 254:
                     # Only set 'results' key to True if it is not already False
                     results['result'] = True if results['result'] != False else True
                 else:
-                    _set_result(key, value)
+                    _set_validate_values_results(key, value)
 
             # process ports which could be a str or a list
             if re.match(r'(source_port|destination_port)', str(key.lower())) and isinstance(key, str):
@@ -355,14 +360,14 @@ class Validate(object):
                     # Only set 'results' key to True if it is not already False
                     results['result'] = True if results['result'] != False else True
                 else:
-                    _set_result(key, value)
+                    _set_validate_values_results(key, value)
             elif re.match(r'(source_port|destination_port)', str(key.lower())) and isinstance(key, list):
                 for port in value:
                     if port >= 0 and port <= 65535:
                         # Only set 'results' key to True if it is not already False
                         results['result'] = True if results['result'] != False else True
                     else:
-                        _set_result(key, port)
+                        _set_validate_values_results(key, port)
 
             # process ip_addresses which could be a str or a list
             if re.match(r'(source_ip|destination_ip)', str(key.lower())) and isinstance(key, str):
@@ -373,7 +378,7 @@ class Validate(object):
                     # Only set 'results' key to True if it is not already False
                     results['result'] = True if results['result'] != False else True
                 else:
-                    _set_result(key, value)
+                    _set_validate_values_results(key, value)
             elif re.match(r'(source_ip|destination_ip)', str(key.lower())) and isinstance(key, list):
                 for ip in value:
                     ip_lookup = Lookup(
@@ -383,7 +388,7 @@ class Validate(object):
                         # Only set 'results' key to True if it is not already False
                         results['result'] = True if results['result'] != False else True
                     else:
-                        _set_result(key, value)
+                        _set_validate_values_results(key, value)
 
         logger.debug('Results: {}'.format(results))
         return results
