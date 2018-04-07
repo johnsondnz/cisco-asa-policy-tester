@@ -11,14 +11,26 @@ class Validate(object):
     Class that pre-validates all YAML defined tests prior to data model creatation and test execution
     Provides feedback on YAML data strcuture to prevent wasted time on long runs
     Flow:
-      1. call run_validation
-        This method will call in the following order.
-            1. unmonitored = self._test_unmonitored_keys(test_data)             # Checks for unmonitored keys in YAML file.
-            2. missing_keys = self._test_validate_keys_exist(test_data)         # Checks for missing registered keys in YAML file.
-            3. invalid_instances = self._test_validate_instances(test_data)     # Uses isinstance to verify the data is the correct structure.
-            4. test_values = self._test_validate_values(test_data)              # Check the values in the instances is the correct type and is valid.
-            5. self._confirm_results()                                          # Searchs the validation data saved from steps 1-4 for failed validation and sets aggregated pass/fail
-            6. self._raise_exception()                                          # outputs issues to the termainl and raises an exception
+    
+    call `run_validation`
+    This method will call other class methods in the following order.
+        1. unmonitored = self._test_unmonitored_keys(test_data)         # Checks for unmonitored keys in YAML file.
+        2. missing_keys = self._test_validate_keys_exist(test_data)     # Checks for missing registered keys in YAML file.
+        3. invalid_instances = self._test_validate_instances(test_data) # Uses isinstance to verify the data is the correct structure.
+        4. test_values = self._test_validate_values(test_data)          # Check the values in the instances is the correct type and is valid.
+        5. self._validation_storage(*args)                              # called once for data obtained in steps 1-4, stores all the data required for steps 6-7.
+        6. self._confirm_results()                                      # Recusively searches the validation data saved in step 5 for failed validation and sets aggregated pass/fail
+        7. self._pass_or_raise_exception()                              # outputs issues to the terminal and raises an exception, only if step 6 determines failure of a testlet
+
+    example:
+    validate = Validate(dir, yaml_file, hostfile_status=True, hostfile_list=hostlist)
+    validation = validate.run_validation()
+
+    the above example will only output data if an data strucutre error is detected
+    if this occurs an exception is raised and the program exits
+
+    if there is no error detected, then there is no exception and the program continues
+    an info log is printed to the terminal to advise if validation was successful
     '''
 
     def __init__(self, script_dir, yaml_data, hostfile_status=False, hostfile_list=None):
@@ -30,7 +42,7 @@ class Validate(object):
         self.hostfile_list = hostfile_list
 
         # register the monitored keys
-        self.montored_keys = ['protocol', 'source_ip', 'source_port', 'destination_ip',
+        self.registered_keys = ['protocol', 'source_ip', 'source_port', 'destination_ip',
                               'destination_port', 'icmp_code', 'icmp_type', 'expected_result']
 
         # load registered protocols
@@ -78,7 +90,13 @@ class Validate(object):
         }
         '''
 
+        logger.debug('Stepped into run_validation')
+        logger.info('Beginning testlet validation')
+
         for interface, item in self.yaml_data.items():
+
+            logger.debug(
+                'Validating testlets for interface: {}'.format(interface))
 
             self.validation[interface] = {}
             self.validation[interface]['testlets'] = []
@@ -92,14 +110,10 @@ class Validate(object):
                     'yaml': test_data
                 })
                 self.validation[interface]['testlets'][index]['issues'] = {}
-                self.validation[interface]['testlets'][index]['issues']['invalid_keys'] = [
-                ]
-                self.validation[interface]['testlets'][index]['issues']['missing_keys'] = [
-                ]
-                self.validation[interface]['testlets'][index]['issues']['invalid_instances'] = [
-                ]
-                self.validation[interface]['testlets'][index]['issues']['invalid_data'] = [
-                ]
+                self.validation[interface]['testlets'][index]['issues']['invalid_keys'] = []
+                self.validation[interface]['testlets'][index]['issues']['missing_keys'] = []
+                self.validation[interface]['testlets'][index]['issues']['invalid_instances'] = []
+                self.validation[interface]['testlets'][index]['issues']['invalid_data'] = []
 
                 # Check this testlets data
                 unmonitored = self._test_unmonitored_keys(test_data)
@@ -123,7 +137,7 @@ class Validate(object):
                 # run the results through the exception handler
                 # if all is good it will return True
                 # otherwise it will construct the exception for user remedy and exit(1)
-                self._raise_exception()
+                self._pass_or_raise_exception()
 
     def _test_validate_keys_exist(self, testlet_data):
         '''
@@ -134,12 +148,15 @@ class Validate(object):
         }
         '''
 
+        logger.debug('Stepped into _test_validate_keys_exist')
+        logger.debug('Asserting registered keys exist')
+
         results = {}
         results['result'] = True
         results['errored_keys'] = []
 
         # First check all the keys exist
-        for key in self.montored_keys:
+        for key in self.registered_keys:
 
             # validate all keys exist
             validate_key_exists = RecursiveSearch(testlet_data, key)
@@ -151,6 +168,7 @@ class Validate(object):
                 # Only set 'results' key to True if it is not already False
                 results['result'] = True if results['result'] != False else True
 
+        logger.debug('Results: {}'.format(results))
         return results
 
     def _test_unmonitored_keys(self, testlet_data):
@@ -162,6 +180,9 @@ class Validate(object):
         }
         '''
 
+        logger.debug('Stepped into _test_unmonitored_keys')
+        logger.debug('Checking for unmonitored keys')
+
         results = {}
         results['result'] = True
         results['unmonitored_keys'] = []
@@ -172,13 +193,14 @@ class Validate(object):
         for tp in testlet_data.items():
             key = tp[0]
 
-            if key not in self.montored_keys:
+            if key not in self.registered_keys:
                 results['result'] == False
                 results['errored_keys'].append(key)
             else:
                 # Only set 'results' key to True if it is not already False
                 results['result'] = True if results['result'] == True else False
 
+        logger.debug('Results: {}'.format(results))
         return results
 
     def _test_validate_instances(self, testlet_data):
@@ -191,11 +213,17 @@ class Validate(object):
         }
         '''
 
+        logger.debug('Stepped into _test_validate_instances')
+        logger.debug('Asserting instance types')
+
         def _instance_types(key, value, key_list):
             '''
             Takes the expected key_list and valdaites that it is of the correct type
             Returns a simple True/False
             '''
+
+            logger.debug(
+                'Stepped into _test_validate_instances._instance_types')
 
             strings_or_lists = ['source_ip', 'source_port',
                                 'destination_ip', 'destination_port']
@@ -204,10 +232,11 @@ class Validate(object):
             integers = ['icmp_type', 'icmp_code']
 
             # Verify that key_list is a list
+            # Used to pickup programming errors, not user error
             try:
                 isinstance(key, list)
             except Exception:
-                logger.error('Submits keys are not a list')
+                logger.error('Submited keys are not a list')
 
             if key in strings_or_lists and key in key_list:
                 result = True if isinstance(key, str) or isinstance(
@@ -225,6 +254,7 @@ class Validate(object):
                 result = True if isinstance(key, str) or isinstance(
                     key, int) and value is not None else False
 
+            logger.debug('Results: {}'.format(results))
             return result
 
         results = {}
@@ -263,13 +293,14 @@ class Validate(object):
                 # Only set 'results' key to True if it is not already False
                 results['result'] = True if results['result'] != False else True
 
+        logger.debug('Results: {}'.format(results))
         return results
 
     def _test_validate_values(self, testlet_data):
         '''
         Check the provided value is a valid type for the key
         ports between 0:65535
-        ipaddr is an ip_address (resolution will be performed as required)
+        ipaddr is an ip_address (dns/hostfile resolution will be performed as required)
         expected_result is either 'drop|allow'
         icmp type/code combination is valid (well it checks the range, but not the pairing, at this stage)
         protocol is a registed value
@@ -278,6 +309,9 @@ class Validate(object):
             errored_keys: [],
         }
         '''
+
+        logger.debug('Stepped into _test_validate_values')
+        logger.debug('Asserting key values are as per definition')
 
         def _set_result(key, value):
             '''set results, cause I'm lazy'''
@@ -351,6 +385,7 @@ class Validate(object):
                     else:
                         _set_result(key, value)
 
+        logger.debug('Results: {}'.format(results))
         return results
 
     def _validation_storage(self, interface, index, storage, testlet_data):
@@ -367,6 +402,8 @@ class Validate(object):
         everything is stored in self.validation
         '''
 
+        logger.debug('Stepped into _validation_storage')
+
         if testlet_data['result'] == False:
             self.validation[interface]['testlets'][index]['result'] = False
             self.validation[interface]['testlets'][index]['issues'][storage].append(
@@ -375,12 +412,26 @@ class Validate(object):
         else:
             self.validation[interface]['testlets'][index]['result'] = True
 
-    def _raise_exception(self):
+    def _confirm_results(self):
+        '''
+        Iterates through self.validation data and determine overall pass/fail grade
+        '''
+
+        logger.debug('Stepped into _confirm_results')
+
+        # search self.validation for any key,value pair for result = False
+        # if found set self.validation['results'] = False
+        self.validation['results'] = False if RecursiveSearch(
+            self.validation, 'result', False) == True else False
+
+    def _pass_or_raise_exception(self):
         '''
         Raises an exception if any of the tests fail.
         Loops through the entire self.validation dictionary and provides a report
         on failure.
         '''
+
+        logger.debug('Stepped into _pass_or_raise_exception')
 
         # Check the overall result which will indicate issues with a testlet
         if self.validation['results'] == False:
@@ -406,12 +457,4 @@ class Validate(object):
             raise ValueError(
                 'Check YAML data for above testlets, fix and rerun.')
 
-    def _confirm_results(self):
-        '''
-        Iterates through self.validation data and determine overall pass/fail grade
-        '''
-
-        # search self.validation for any key,value pair for result = False
-        # if found set self.validation['results'] = False
-        self.validation['results'] = False if RecursiveSearch(
-            self.validation, 'result', False) == True else False
+        logger.info('All testlets passed data validation tests.')
