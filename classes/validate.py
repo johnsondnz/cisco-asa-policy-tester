@@ -318,7 +318,7 @@ class Validate(object):
             Sets the testlet value results, re-use the code!!
             '''
 
-            logger.debug('Stepped into _set_validate_values_results')
+            logger.debug('Stepped into _test_validate_values._set_validate_values_results')
 
             results['result'] = False
             # append key,value tuple pair to the list
