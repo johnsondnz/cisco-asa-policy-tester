@@ -75,7 +75,7 @@ INSIDE: # One dictionary per interface
         protocol: tcp, 
         icmp_type: , icmp_code: ,
         source_ip: 192.168.1.1, source_port: 12345, 
-        destination_ip: [host1, host2, host3], destination_port: 1443
+        destination_ip: [host1, host2, host3], destination_port: 1443,
         expected_result: allow
     }
 ```
