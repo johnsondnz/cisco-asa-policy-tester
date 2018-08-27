@@ -19,6 +19,12 @@ At this time the tool requires a privilege-level 15 user.  It is untested with l
 - jinja2
 - ipaddr
 
+## Features
+- Auto retry.yml generation for replay of remediated failed tests.
+- NAT detection.
+- Suboptimal routing detection.
+- Aggregated testlets, multiple sources and destinations.
+
 ## New to Verion 0.8 - 06-04-2018
 - Added `-r` flag for defining custom report name.  Omitting this flag results in standard `html_report.html` output.
 - A report is now generted per interface in addition to the full HTML report.
@@ -55,7 +61,7 @@ At this time the tool requires a privilege-level 15 user.  It is untested with l
 ## ToDo
 - Test and implement enable password.
 - Implement expected NAT resolution.
-- Use indexed test results to correlate to yaml data.  This will enable copy/paste like function to retry.yml
+- Use indexed test results to correlate to ya ml data.  Thiswill enable copy/paste like function to retry.yml
 - Add testlet structured_data validation
 
 ## Usage
@@ -333,20 +339,3 @@ Password:
 [I 180327 18:15:14 resolve:62] DNS resovled object "host1" to "192.168.1.1"
 [I 180327 18:15:14 resolve:89] Source IP "192.168.1.1" is a valid IP, further resolution not required
 ```
-
-## Report Output
-### Fail and Pass Tests
-![alt text](https://i.imgur.com/WAByh3g.png "Report Output")
-
-## Failed with NAT and RPF-Violation
-**All failure types are captured**
-![alt text](https://i.imgur.com/kq2oIWD.png "Failed with NAT")
-
-### NAT Detection
-![alt text](https://i.imgur.com/Nqhr8EH.png "NAT Detection")
-
-### Skipped Tests
-![alt text](https://i.imgur.com/7SryMhT.png "Skipped Test")
-
-
-

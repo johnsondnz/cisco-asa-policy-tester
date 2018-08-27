@@ -101,4 +101,5 @@ ENV/
 .mypy_cache/
 
 tests/*.yml
+tests/*.txt
 reports/*.html

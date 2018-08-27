@@ -100,9 +100,9 @@
                     {% if  row.grade == '[PASS]' %}
                         {% set row_color = 'table-success' %}
                     {% elif row.grade == '[FAIL]' %}
-                        {% set row_color = 'table-warning' %}
-                    {% elif row.grade == '[SKIP]' %}
                         {% set row_color = 'table-danger' %}
+                    {% elif row.grade == '[SKIP]' %}
+                        {% set row_color = 'table-warning' %}
                     {% endif %}
                     <tbody>
                         {% set addtional_info = true if row.nat_rule or row.grade == '[FAIL]' or row.grade == '[SKIP]' %}
